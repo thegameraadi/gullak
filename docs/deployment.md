@@ -35,3 +35,10 @@ Relevant platform references: [WebKit Home Screen web apps](https://webkit.org/b
 GitHub Actions validates each push and pull request using the committed lockfile. Tests cover ledger invariants, guest storage, assistant proposals, release changes, delayed updates, failed requests, and concurrent resume checks. Built Worker checks exercise the public welcome, release endpoint and response headers, anonymous denial, account isolation, persistence, idempotency, conflicts, and cross-origin write rejection.
 
 Desktop Browser checks cover responsive layouts and keyboard-height simulations. Real iPhone Safari, the native software keyboard, installed Home Screen lifecycle, microphone permissions, and live platform authentication require device verification; they are not asserted as passes by those simulations.
+
+
+### Production layout checks
+
+Run responsive checks against the built Worker, not only the development server. Open Gullie at 430 × 932 (iPhone 15 Plus), narrower phone widths, a reduced height for keyboard space, landscape, and laptop size. Verify the entire panel is inside the viewport, Close and Send remain reachable, conversation scrolling is independent, and closing returns focus to Ask Gullie. Repeat with the New Goal form.
+
+Gullie uses the dialog's `custom` placement so it never receives the centered dialog's position, translation, or animation utilities. CSS optimization can lower an individual `translate` reset into a `transform`, which does not cancel a separate `translate` utility. Overriding those utilities with `translate: none` passed development checks but left the production panel shifted by half its width and height. Keep placement separate at the component level.
