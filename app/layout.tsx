@@ -2,6 +2,8 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import "./gullie-mobile.css";
 import AppIcon from "./app-icon";
+import AppearanceProvider from "./appearance-provider";
+import {appearanceBootstrap} from "./appearance";
 import AppUpdates from "./app-updates";
 import UsageAnalytics from "./usage-analytics";
 import {siteOrigin,siteDescription} from "./seo";
@@ -33,9 +35,9 @@ export default async function RootLayout({
 }>) {
   const visit = (await headers()).get("x-gullak-visit-id");
   return (
-    <html lang="en">
-      <head><link rel="preload" href="/fonts/InterVariable.woff2" as="font" type="font/woff2" crossOrigin="anonymous"/></head>
-      <body className="antialiased" data-gullak-visit={visit || undefined}><AppIcon/><AppUpdates/><UsageAnalytics/>{children}</body>
+    <html lang="en" suppressHydrationWarning>
+      <head><script dangerouslySetInnerHTML={{__html:appearanceBootstrap}}/><link rel="preload" href="/fonts/InterVariable.woff2" as="font" type="font/woff2" crossOrigin="anonymous"/></head>
+      <body className="antialiased" data-gullak-visit={visit || undefined}><AppearanceProvider><AppIcon/><AppUpdates/><UsageAnalytics/>{children}</AppearanceProvider></body>
     </html>
   );
 }

@@ -14,7 +14,8 @@ export default function Celebration({ burst }: { burst: number }) {
     element.width = width * scale;
     element.height = height * scale;
     ctx.scale(scale, scale);
-    const colors = ["#8a6726", "#b69855", "#ddc998", "#efe4c9"];
+    const styles=getComputedStyle(document.documentElement);
+    const colors = ["--brand", "--brand-soft", "--wordmark", "--foreground"].map(token=>styles.getPropertyValue(token).trim());
     const particles = Array.from({ length: 85 }, () => ({
       x: width / 2, y: height * .55,
       vx: (Math.random() - .5) * Math.min(width * .025, 17), vy: -5 - Math.random() * 12,

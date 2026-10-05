@@ -19,7 +19,7 @@ Gullak turns things you want to save for into clear goals, balances, and progres
 - **Use USD or INR.** View converted amounts with the reference rate and date; original entry amounts remain in the ledger.
 - **Ask Goalie.** Get goal summaries and balance explanations, or describe a change. Review its effect before saving. Built-in commands work without an AI service; the optional AI adapter requires server configuration.
 - **Choose how to save.** Sign in with ChatGPT for an account saved on the server, or try a device-local guest dashboard. Download and restore backups from Settings.
-- **Make it yours.** Light, dark, and system themes; voice input and read-aloud controls when your browser supports them.
+- **Make it yours.** Choose Golden, the original Green, or Black using circular colour controls in Settings. Your device remembers the choice across Gullak, including its logo and browser icon. Combine it with light, dark, or system appearance; voice input and read-aloud controls when your browser supports them.
 
 Gullak records your savings decisions. It does not connect to a bank or move money.
 
@@ -97,3 +97,7 @@ The responsive layout was checked from 320-pixel phone widths through 1440-pixel
 Found a problem? [Open an issue](https://github.com/thegameraadi/gullak/issues) with the screen size, browser, and steps to reproduce. Please keep personal financial records and credentials out of screenshots and reports.
 
 The bundled Inter font and third-party components retain their respective licenses. Public visibility does not itself grant a separate license to the original application code.
+
+Choose your colour in Settings:
+
+<img src="docs/screenshots/phone-colour-settings.png" alt="Golden, Green, and Black circular colour choices in Gullak Settings" width="280"/>

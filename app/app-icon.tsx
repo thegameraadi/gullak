@@ -1,3 +1,15 @@
 "use client";
 import {useEffect} from "react";
-export default function AppIcon(){useEffect(()=>{const query=window.matchMedia("(prefers-color-scheme: dark)");const update=()=>{const dark=query.matches;for(const link of document.querySelectorAll<HTMLLinkElement>('link[rel="icon"],link[rel="shortcut icon"]'))link.href=dark?"/favicon-dark.svg?v=piggy-gold-1":"/favicon-light.svg?v=piggy-gold-1";for(const link of document.querySelectorAll<HTMLLinkElement>('link[rel="apple-touch-icon"]'))link.href=dark?"/apple-touch-icon-dark.png?v=piggy-gold-1":"/apple-touch-icon.png?v=piggy-gold-1";const manifest=document.querySelector<HTMLLinkElement>('link[rel="manifest"]');if(manifest)manifest.href=dark?"/manifest-dark.webmanifest?v=piggy-gold-1":"/manifest.webmanifest?v=piggy-gold-1";};update();query.addEventListener("change",update);return()=>query.removeEventListener("change",update);},[]);return null;}
+import {useAppearance} from "./appearance-provider";
+import {brandAsset,colourOptions} from "./appearance";
+export default function AppIcon(){
+ const {colour,dark}=useAppearance();
+ useEffect(()=>{
+  for(const link of document.querySelectorAll<HTMLLinkElement>('link[rel="icon"],link[rel="shortcut icon"]'))link.href=brandAsset(colour,dark,"favicon");
+  for(const link of document.querySelectorAll<HTMLLinkElement>('link[rel="apple-touch-icon"]'))link.href=brandAsset(colour,dark,"apple-touch-icon");
+  const manifest=document.querySelector<HTMLLinkElement>('link[rel="manifest"]');if(manifest)manifest.href=brandAsset(colour,dark,"manifest");
+  const palette=colourOptions.find(c=>c.value===colour)!;
+  for(const meta of document.querySelectorAll<HTMLMetaElement>('meta[name="theme-color"]')){meta.removeAttribute("media");meta.content=dark?palette.darkBackground:palette.background;}
+ },[colour,dark]);
+ return null;
+}

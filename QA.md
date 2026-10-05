@@ -104,3 +104,14 @@ All 68 unit tests, TypeScript, production build and built Worker integration pas
 Local browser checks covered the dashboard at 1440×900, 430×932 and 320×568, plus Goalie replies, Settings labels, light/dark themes, and a 390×360 keyboard-height simulation. No horizontal document overflow was found; the keyboard-height Goalie panel was 390×360 with both Send and Close inside it. The optimized production Worker was also checked with Goalie at 430×932 and 390×360; the panel, Send and Close stayed inside those viewports. Screenshots use fictional local goals and balances. Real iPhone hardware and native icon-refresh behavior are not claimed as tested.
 
 The manifest ID, scope and start URL are preserved. Icon URLs are versioned to refresh website caches. App content continues using the existing safe auto-update mechanism; iOS controls an already-installed Home Screen icon and may retain it.
+
+
+## Choose your colour — October 5, 2026
+
+Settings now offers Golden, original Green (#237d4a), and Black as three 44-pixel circular radio buttons with matching swatches, a checkmark, selected ring, visible focus, and arrow-key selection. A shared appearance provider saves the device preference, applies it before page paint, and carries it across the dashboard, Goalie, welcome, privacy and management routes. Colours are independent of light/dark/system appearance. Existing Golden defaults remain for devices without a saved choice. Black uses neutral light accents in dark appearance for readable controls.
+
+All brand tokens, logo variants, browser favicons, touch-icon links, manifest variants, and celebration colours follow selection. Manifest identity, start URL and scope stay `/`, preserving existing installed-app identity. Physical iPhone Home Screen icon refresh is not claimed as tested. No ledger, synced account settings, or authentication changes were required.
+
+Verification: 68 existing unit tests, TypeScript, production build and built Worker integration passed. Browser checks covered the optimized release at 1440×900, 430×932, 320×568 and 390×360. All three choices were checked in light and dark appearance, keyboard selection was verified, reloads preserved preferences, and privacy/management routes inherited Green. At 320px all swatches and Close measured 44×44, with no horizontal overflow. The Goalie keyboard-height panel filled 390×360, with Send and Close fully inside it.
+
+Screenshot: `docs/screenshots/phone-colour-settings.png` uses a local empty guest dashboard.
