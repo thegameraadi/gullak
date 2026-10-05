@@ -27,6 +27,10 @@ export default {
     if (response.headers.get("content-type")?.includes("text/html") || response.headers.get("content-type")?.includes("text/x-component")) {
       const headers = new Headers(response.headers);
       headers.set("Cache-Control", "private, no-store");
+      const pathname = new URL(request.url).pathname;
+      if (request.headers.get("oai-authenticated-user-id") || pathname === "/manage" || pathname.startsWith("/manage/") || pathname.startsWith("/api/")) {
+        headers.set("X-Robots-Tag", "noindex, nofollow");
+      }
       return new Response(response.body, { status: response.status, statusText: response.statusText, headers });
     }
     return response;

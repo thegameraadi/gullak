@@ -62,6 +62,14 @@ The [development guide](docs/development.md) covers local storage bindings, migr
 
 ## Deployment
 
+### Private product analytics
+
+The owner dashboard lives at `/manage`, with no entrance from the public app. Sign in with ChatGPT; the server binds access to the Site owner's verified account and rejects all other accounts. It reports visitors, sessions, returning browsers, referrals, device and Home Screen use, feature adoption, and Gullie activity across 7, 30, or 90 days. Collection begins with this release, so earlier traffic is not reconstructed.
+
+Analytics stores coarse usage events, never balances, earnings amounts, goal names, conversation text, full referral URLs, or email addresses. Do Not Track and Global Privacy Control are respected. See [analytics and search setup](docs/analytics.md) and the app's [privacy details](https://gullak-aditya.thegameraadi3.chatgpt.site/privacy).
+
+The public introduction includes search metadata, structured application data, and a sitemap. Private dashboards are excluded from indexing. Google Search Console provides search impressions, clicks, queries, and position once Google processes the site; those reports are separate from the product dashboard.
+
 | Surface | Purpose |
 | --- | --- |
 | [Live Gullak](https://gullak-aditya.thegameraadi3.chatgpt.site/) | The production app, hosted on Sites with a Cloudflare Worker and D1 database. |

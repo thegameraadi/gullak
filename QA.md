@@ -71,3 +71,14 @@ Build inputs now produce a shared browser/server release fingerprint. The anonym
 All 60 product/update tests passed, including changed/unchanged releases, delayed reloads, failed requests, concurrent checks, disposal, and rollback before reload. TypeScript and the production build passed. Built Worker checks verified the release response, stable version for the same build, no-store page headers, and the existing account/ledger safeguards. Browser checks reconfirmed Gullie at 390x844 and a 390x360 keyboard-height simulation: panel bounds were 390x360, Send was fully inside, and Close stayed visible at y=11. The clean demo dashboard fit the phone width and laptop layout, and the balance explanation matched the demo ledger.
 
 The updater was checked in desktop Browser and automated tests. Real Safari Home Screen lifecycle on an iPhone was not available and is not claimed as verified. A pre-updater suspended session needs one normal close/reopen to load this release; removing the installed icon is unnecessary.
+
+
+## Owner analytics and search visibility — October 5, 2026
+
+Added server-protected `/manage` analytics, with no public entrance. Built Worker checks cover anonymous rejection, another account attempting to claim ownership first, exact owner ID pinning, changed owner email, same-email different-ID denial, and missing configuration failing closed. Only aggregate usage is returned. The additive migration creates analytics and owner-binding tables without changing account records.
+
+Collector tests verify fixed events, bounded batches, deduplication, same-origin writes, DNT/GPC opt-outs, and rejection of private or arbitrary fields. Reports were checked against recorded fixtures for visitors, sessions, source, device, standalone mode, and goal activity. All 64 product tests, TypeScript, production build, and built Worker integration checks passed.
+
+Browser checks used fictional local preview data at 1440×900, 430×932, and 320×568. No horizontal document overflow was found. The 90-day selector and Apply worked; daily values expanded into a bounded scrollable table. Charts and tables receive keyboard focus, and keyboard scrolling reached later rows. Phone chart labels were spaced to avoid overlap. These are desktop viewport simulations, not physical iPhone Safari checks.
+
+Public welcome metadata, canonical URLs, WebApplication structured data, sitemap, robots rules, and authenticated/private noindex headers were checked in the built Worker. Google Search Console ownership and indexing are separate live setup steps; a request to index is not evidence of ranking. Product analytics starts at release and does not reconstruct older traffic.
