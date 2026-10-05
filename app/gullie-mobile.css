@@ -137,3 +137,18 @@
 /* Keep the wordmark readable with Inter at every width. */
 .brand{letter-spacing:-1.4px}.brand>span:not(.brand-monogram){padding-bottom:2px}
 @media(max-width:620px){.brand{letter-spacing:-1px}}
+.goal-entry-controls{display:flex;align-items:center;gap:8px;flex-wrap:wrap;width:100%}
+.goal-entry-controls .button{flex-shrink:0}
+.goal-link-box{display:flex;flex-direction:column;gap:12px;padding:16px;border:1px solid var(--border);border-radius:12px;background:var(--secondary);min-width:0}
+.goal-link-box .button{align-self:flex-start;background:var(--card);border-color:var(--border)}
+.goal-link-box input{width:100%;min-width:0}
+.goal-link-box .form-error{margin:0;overflow-wrap:anywhere}
+.gullie-composer{min-height:0;max-height:65%;overflow-y:auto;overscroll-behavior:contain}
+.gullie-composer .form-error{max-height:min(96px,calc(var(--viewport-height,100dvh)*.2));overflow-y:auto;overflow-wrap:anywhere}
+.gullie-composer textarea{max-height:min(120px,calc(var(--viewport-height,100dvh)*.24))}
+.gullie-header{min-width:0;padding-right:64px}
+.gullie-review-actions{flex-wrap:wrap}
+.gullie-review-actions .button{min-width:110px;overflow-wrap:anywhere}
+@media(max-width:620px){.gullie-header{padding-right:calc(64px + env(safe-area-inset-right))}.goal-link-box{padding:14px}}
+:root[data-compact-viewport=true] .gullie-composer textarea{min-height:44px}
+@media(min-width:621px) and (max-height:480px){.gullie-dialog{right:12px!important;bottom:12px!important;height:calc(var(--viewport-height,100dvh) - 24px);max-height:calc(var(--viewport-height,100dvh) - 24px)}}
