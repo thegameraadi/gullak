@@ -36,6 +36,19 @@ try{
  r=await post(s.version,'closeGoal',{goalId:carId});assert.equal(r.status,400);
  r=await post(s.version,'closeGoal',{goalId:carId,reason:'bought',amountCents:5000,confirmed:true,date:'2026-10-04'});assert.equal(r.status,200);s=await r.json();assert.equal(s.state.losses[0].amountCents,3000);assert.equal(s.state.goals.some(g=>g.id===carId),false);
  const persisted=await(await get()).json();assert.deepEqual(persisted.state.losses,s.state.losses);
+ const lossPurchase=s.state.entries.find(e=>e.goalId===carId&&e.kind==='purchase');
+ r=await post(s.version,'editEntry',{entryId:lossPurchase.id,amountCents:4000,date:'2026-10-04',note:'Corrected price'});assert.equal(r.status,200);s=await r.json();assert.equal(s.state.losses[0].amountCents,2000);
+ r=await post(s.version,'deleteEntry',{entryId:lossPurchase.id});assert.equal(r.status,200);s=await r.json();assert.equal(s.state.losses.length,0);assert.equal(s.state.goals.find(g=>g.id===carId).targetCents,360000);
+ r=await post(s.version,'resetGoal',{goalId:carId,confirmed:false});assert.equal(r.status,400);
+ r=await post(s.version,'resetGoal',{goalId:carId,confirmed:true,date:'2026-10-05'});assert.equal(r.status,200);s=await r.json();assert.equal(s.state.entries.filter(e=>e.goalId===carId).reduce((n,e)=>n+e.goalDeltaCents,0),0);
+ const incomeEntry=s.state.entries.find(e=>e.kind==='income');r=await post(s.version,'editEntry',{entryId:incomeEntry.id,amountCents:18000,date:'2026-10-04',note:'Updated income'});assert.equal(r.status,200);s=await r.json();
+ const oldLast=s.state.entries.at(-1).id;r=await post(s.version,'reset',{scope:'earned',confirmed:true});assert.equal(r.status,200);s=await r.json();assert.equal(s.state.earningsFromEntry,oldLast);assert.ok(s.state.entries.length>0);
+ r=await post(s.version,'income',{amountCents:1000});assert.equal(r.status,200);s=await r.json();const newIncome=s.state.entries.at(-1);
+ r=await post(s.version,'deleteEntry',{entryId:newIncome.id});assert.equal(r.status,200);s=await r.json();assert.equal(s.state.entries.some(e=>e.id===newIncome.id),false);
+ r=await post(s.version,'reset',{scope:'history',confirmed:false});assert.equal(r.status,400);
+ r=await post(s.version,'reset',{scope:'history',confirmed:true});assert.equal(r.status,200);s=await r.json();assert.equal(s.state.entries.length,0);assert.equal(s.state.goals[0].status,'active');
+ const resetId=crypto.randomUUID();const oldVersion=s.version;r=await post(s.version,'reset',{scope:'all',confirmed:true},resetId);assert.equal(r.status,200);s=await r.json();assert.equal(s.state.goals.length,0);
+ r=await post(oldVersion,'reset',{scope:'all',confirmed:true},resetId);assert.equal(r.status,200);assert.equal((await r.json()).version,s.version);assert.deepEqual((await(await get()).json()).state.entries,[]);
  const other=await mf.dispatchFetch(base+'/api/account',{headers:{...headers,'oai-authenticated-user-id':'qa-other'}});assert.equal(other.status,200);assert.equal((await other.json()).state.entries.length,0);
- console.log('Passed built Worker: SSR, sign-in gate, no-store, persistence, user isolation, idempotent retries, concurrent update conflicts, CSRF, currency feed, purchase gating, purchase losses and overspend rejection.');
+ console.log('Passed built Worker: SSR, sign-in gate, no-store, persistence, user isolation, idempotent retries, concurrent update conflicts, CSRF, currency feed, purchase gating, purchase losses, history edits/deletes, reset scopes, reset retries and overspend rejection.');
 }finally{await mf.dispose();}

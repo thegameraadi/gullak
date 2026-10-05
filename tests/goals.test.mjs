@@ -70,3 +70,9 @@ test('setting an initial draft establishes its start date without resetting late
  let s=apply(initialState(),'editGoal',{goalId:'monitor',name:'Monitor',category:'auto',targetCents:10000,date:'',note:'',startedOn:'2026-10-01'});assert.equal(s.goals[0].startedOn,'2026-10-01');
  s=apply(s,'editGoal',{goalId:'monitor',name:'Monitor',category:'auto',targetCents:20000,date:'',note:'',startedOn:'2026-10-05'});assert.equal(s.goals[0].startedOn,'2026-10-01');
 });
+
+test('resetting goal funding hides ETA until a new deposit arrives',()=>{
+ let s=create(initialState(),'Car',10000);const id=s.goals.at(-1).id;s=apply(s,'contribute',{goalId:id,source:'external',amountCents:2000,date:'2026-10-04'});
+ s=apply(s,'resetGoal',{goalId:id,confirmed:true,date:'2026-10-05'});assert.equal(goalEta(s,s.goals.at(-1),'2026-10-05'),null);
+ s=apply(s,'contribute',{goalId:id,source:'external',amountCents:2000,date:'2026-10-06'});const eta=goalEta(s,s.goals.at(-1),'2026-10-06');assert.equal(eta.deposits,1);assert.equal(eta.start,'2026-10-05');
+});

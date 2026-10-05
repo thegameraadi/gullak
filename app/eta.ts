@@ -2,7 +2,8 @@ import { balance, type State, type Goal } from "./domain";
 const day=(date:string)=>Date.parse(date+"T12:00:00Z")/86400000;
 export function goalEta(state:State,goal:Goal,today:string){
  if(goal.draft||goal.status==="purchased")return null;
- const deposits=state.entries.filter(e=>e.goalId===goal.id&&e.goalDeltaCents>0&&e.date<=today);
+ const cutoff=goal.etaFromEntry?state.entries.findIndex(e=>e.id===goal.etaFromEntry):-1;
+ const deposits=state.entries.slice(cutoff+1).filter(e=>e.goalId===goal.id&&e.goalDeltaCents>0&&e.date<=today);
  if(!deposits.length)return null;
  const first=deposits.reduce((a,e)=>e.date<a?e.date:a,deposits[0].date);
  const start=goal.startedOn&&goal.startedOn<first?goal.startedOn:first;
