@@ -15,7 +15,7 @@ test('manual income, allocation, existing savings, release, purchase preserve ev
  s=apply(s,'contribute',{goalId:'monitor',amountCents:10000,source:'external'});
  assert.equal(received(s),60000);assert.equal(reserved(s),45000);assert.equal(s.goals[0].earned,4);
  s=apply(s,'release',{goalId:'monitor',amountCents:5000});assert.equal(available(s),20000);
- s=apply(s,'purchase',{goalId:'monitor',amountCents:37500});assert.equal(available(s),22500);assert.equal(balance(s,'monitor'),0);assert.equal(spent(s),37500);assert.equal(s.goals[0].status,'purchased');assertAccounting(s);
+ s=apply(s,'purchase',{goalId:'monitor',amountCents:37500,confirmed:true});assert.equal(available(s),22500);assert.equal(balance(s,'monitor'),0);assert.equal(spent(s),37500);assert.equal(s.goals[0].status,'purchased');assertAccounting(s);
  s=apply(s,'withdraw',{amountCents:2000});assert.equal(available(s),20500);assert.equal(spent(s),39500);assertAccounting(s);
 });
 test('unconfirmed budgets and overspending fail without changing state',()=>{
@@ -64,12 +64,15 @@ test('completion fires at the target once, with no replay after a release, retry
  const refilled=apply(released,'contribute',{goalId:'monitor',amountCents:2000,source:'pool'});
  assert.deepEqual(firstCompletions(released,refilled,'contribute'),[]);
 });
-test('one split can complete multiple goals and an actual purchase also completes a goal',()=>{
+test('split completion and purchase confirmation respect funding',()=>{
  let before=confirm(initialState(),'monitor',10000);before=confirm(before,'tv',10000);
  before=apply(before,'income',{amountCents:20000});
  const after=apply(before,'split',{allocations:[{goalId:'monitor',amountCents:10000},{goalId:'tv',amountCents:10000}]});
  assert.deepEqual(firstCompletions(before,after,'split'),['monitor','tv']);
  const saved=apply(confirm(initialState(),'monitor',10000),'contribute',{goalId:'monitor',amountCents:8000,source:'external'});
- const bought=apply(saved,'purchase',{goalId:'monitor',amountCents:8000});
- assert.deepEqual(firstCompletions(saved,bought,'purchase'),['monitor']);
+ assert.throws(()=>apply(saved,'purchase',{goalId:'monitor',amountCents:8000,confirmed:true}),/Reach the Set Goal/);
+ const funded=apply(saved,'contribute',{goalId:'monitor',amountCents:2000,source:'external'});
+ const bought=apply(funded,'purchase',{goalId:'monitor',amountCents:8000,confirmed:true});
+ assert.equal(bought.goals[0].status,'purchased');
+ assert.deepEqual(firstCompletions(funded,bought,'purchase'),[]);
 });
