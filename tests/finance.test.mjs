@@ -70,7 +70,7 @@ test('split completion and purchase confirmation respect funding',()=>{
  const after=apply(before,'split',{allocations:[{goalId:'monitor',amountCents:10000},{goalId:'tv',amountCents:10000}]});
  assert.deepEqual(firstCompletions(before,after,'split'),['monitor','tv']);
  const saved=apply(confirm(initialState(),'monitor',10000),'contribute',{goalId:'monitor',amountCents:8000,source:'external'});
- assert.throws(()=>apply(saved,'purchase',{goalId:'monitor',amountCents:8000,confirmed:true}),/Reach the Set Goal/);
+ assert.throws(()=>apply(saved,'purchase',{goalId:'monitor',amountCents:8000,confirmed:true}),/Reach the goal/);
  const funded=apply(saved,'contribute',{goalId:'monitor',amountCents:2000,source:'external'});
  const bought=apply(funded,'purchase',{goalId:'monitor',amountCents:8000,confirmed:true});
  assert.equal(bought.goals[0].status,'purchased');

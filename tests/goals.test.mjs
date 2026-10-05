@@ -33,7 +33,7 @@ test('ETA starts after a deposit and uses amount, goal start date, and elapsed c
 });
 test('purchases require full funding and explicit confirmation; only then become wins',()=>{
  let s=create(initialState());const g=s.goals.at(-1);
- s=apply(s,'contribute',{goalId:g.id,source:'external',amountCents:5000});assert.throws(()=>apply(s,'purchase',{goalId:g.id,amountCents:5000,confirmed:true}),/Reach the Set Goal/);assert.equal(s.goals.at(-1).status,'active');
+ s=apply(s,'contribute',{goalId:g.id,source:'external',amountCents:5000});assert.throws(()=>apply(s,'purchase',{goalId:g.id,amountCents:5000,confirmed:true}),/Reach the goal/);assert.equal(s.goals.at(-1).status,'active');
  s=apply(s,'contribute',{goalId:g.id,source:'external',amountCents:5000});assert.equal(s.goals.at(-1).status,'active');assert.throws(()=>apply(s,'purchase',{goalId:g.id,amountCents:9000}),/Confirm that/);
  s=apply(s,'purchase',{goalId:g.id,amountCents:9000,confirmed:true});assert.equal(s.goals.at(-1).status,'purchased');assert.equal(balance(s,g.id),0);assert.equal(available(s),1000);assert.equal(goalEta(s,s.goals.at(-1),'2026-10-05'),null);
 });
