@@ -91,3 +91,16 @@ Added likely-human, AI/bot, and unknown traffic estimates to the private owner d
 All 68 unit tests and TypeScript passed. Built Worker integration verified additive migrations, server-only crawler visits, caller visit-header replacement, legacy unknown records, linked interaction upgrades, bot signals resisting later human claims, exact category and automation subtotals, DNT/GPC and prefetch exclusions, private payload rejection, and existing account/owner-access safeguards.
 
 Browser checks used local fictional data and actual local browser actions at 1440×900, 430×932, and 320×568. A Gullie action upgraded the linked browser visit without labelling AI feature use as bot traffic. Cards stayed inside the viewport, the automation table fit without document overflow, its disclosure worked with Enter, and Tab reached the table region. Empty traffic records and populated bot records were reviewed. These are desktop viewport simulations, not physical iPhone Safari checks.
+
+
+## Piggy-bank branding and Goalie — October 5, 2026
+
+Replaced the G-dollar monogram with a dollar-marked piggy bank, based on Lucide functional icons. Dashboard/welcome logos, light and dark SVG favicons, opaque 180/192/512-pixel Home Screen icons, manifest colours and icon URLs share the new mark. Main actions, balances, progress, goal icons, analytics charts, focus indicators and celebration colours use a flat matte-gold palette, with warm neutral surfaces and theme-specific contrast.
+
+Renamed the assistant to Goalie (GOAL-ey) across visible UI, errors, generated notes, the AI instruction, privacy/SEO copy, owner analytics and current documentation. Persisted settings, analytics event names and the existing API route retain their compatible identifiers so backups, preferences, suspended clients and historical activity continue working. No account migration is needed.
+
+All 68 unit tests, TypeScript, production build and built Worker integration passed. Primary/text contrast on white is 5.19:1; the dark primary button is 8.38:1. The secondary analytics series meets 3.16:1 against white. Icons were generated and visually reviewed in both themes.
+
+Local browser checks covered the dashboard at 1440×900, 430×932 and 320×568, plus Goalie replies, Settings labels, light/dark themes, and a 390×360 keyboard-height simulation. No horizontal document overflow was found; the keyboard-height Goalie panel was 390×360 with both Send and Close inside it. The optimized production Worker was also checked with Goalie at 430×932 and 390×360; the panel, Send and Close stayed inside those viewports. Screenshots use fictional local goals and balances. Real iPhone hardware and native icon-refresh behavior are not claimed as tested.
+
+The manifest ID, scope and start URL are preserved. Icon URLs are versioned to refresh website caches. App content continues using the existing safe auto-update mechanism; iOS controls an already-installed Home Screen icon and may retain it.

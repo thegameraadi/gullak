@@ -4,20 +4,20 @@
 
 **Your savings. Your goals. A little closer.**
 
-Gullak turns things you want to save for into clear goals, balances, and progress. Record income, put money aside, and see what is funded and what is still available. Gullie helps explain your dashboard and prepare changes for your review.
+Gullak turns things you want to save for into clear goals, balances, and progress. Record income, put money aside, and see what is funded and what is still available. Goalie helps explain your dashboard and prepare changes for your review.
 
 ### [Open the live app →](https://gullak-aditya.thegameraadi3.chatgpt.site/)
 
 **Built by [Aditya](https://github.com/thegameraadi).** Works in a desktop browser, on your phone, and from a Safari Home Screen icon.
 
-![Gullak desktop dashboard](docs/screenshots/desktop-dashboard.jpg)
+![Gullak desktop dashboard](docs/screenshots/desktop-dashboard.png)
 
 ## What you can do
 
 - **Set meaningful goals.** Name a goal, choose a target and optional date, then track funding and estimated progress. Import product details from supported shop links or enter them yourself.
 - **Keep the numbers clear.** Record income, allocate available funds, add existing savings, split funding, and review purchases. History edits recalculate the ledger.
 - **Use USD or INR.** View converted amounts with the reference rate and date; original entry amounts remain in the ledger.
-- **Ask Gullie.** Get goal summaries and balance explanations, or describe a change. Review its effect before saving. Built-in commands work without an AI service; the optional AI adapter requires server configuration.
+- **Ask Goalie.** Get goal summaries and balance explanations, or describe a change. Review its effect before saving. Built-in commands work without an AI service; the optional AI adapter requires server configuration.
 - **Choose how to save.** Sign in with ChatGPT for an account saved on the server, or try a device-local guest dashboard. Download and restore backups from Settings.
 - **Make it yours.** Light, dark, and system themes; voice input and read-aloud controls when your browser supports them.
 
@@ -26,8 +26,8 @@ Gullak records your savings decisions. It does not connect to a bank or move mon
 ## On your phone
 
 <p>
-  <img src="docs/screenshots/phone-dashboard.jpg" width="300" alt="Gullak savings goals on a phone">
-  <img src="docs/screenshots/phone-gullie.jpg" width="300" alt="Gullie conversation on a phone">
+  <img src="docs/screenshots/phone-dashboard.png" width="300" alt="Gullak savings goals on a phone">
+  <img src="docs/screenshots/phone-goalie.png" width="300" alt="Goalie conversation on a phone">
 </p>
 
 In Safari, open the live app, tap **Share → Add to Home Screen**, and keep that icon. New releases use the same app address and identity.
@@ -64,7 +64,7 @@ The [development guide](docs/development.md) covers local storage bindings, migr
 
 ### Private product analytics
 
-The owner dashboard lives at `/manage`, with no entrance from the public app. Sign in with ChatGPT; the server binds access to the Site owner's verified account and rejects all other accounts. It reports visitors, sessions, returning browsers, referrals, device and Home Screen use, feature adoption, and Gullie activity across 7, 30, or 90 days. A traffic split estimates likely humans, AI/bots, and unknown traffic, with separate page-load and feature-activity counts and detected automation details. Earlier events remain unknown; historical bot traffic cannot be reconstructed.
+The owner dashboard lives at `/manage`, with no entrance from the public app. Sign in with ChatGPT; the server binds access to the Site owner's verified account and rejects all other accounts. It reports visitors, sessions, returning browsers, referrals, device and Home Screen use, feature adoption, and Goalie activity across 7, 30, or 90 days. A traffic split estimates likely humans, AI/bots, and unknown traffic, with separate page-load and feature-activity counts and detected automation details. Earlier events remain unknown; historical bot traffic cannot be reconstructed.
 
 Analytics stores coarse usage events, never balances, earnings amounts, goal names, conversation text, full referral URLs, or email addresses. Do Not Track and Global Privacy Control are respected. See [analytics and search setup](docs/analytics.md) and the app's [privacy details](https://gullak-aditya.thegameraadi3.chatgpt.site/privacy).
 
