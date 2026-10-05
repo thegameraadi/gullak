@@ -64,7 +64,7 @@ The [development guide](docs/development.md) covers local storage bindings, migr
 
 ### Private product analytics
 
-The owner dashboard lives at `/manage`, with no entrance from the public app. Sign in with ChatGPT; the server binds access to the Site owner's verified account and rejects all other accounts. It reports visitors, sessions, returning browsers, referrals, device and Home Screen use, feature adoption, and Gullie activity across 7, 30, or 90 days. Collection begins with this release, so earlier traffic is not reconstructed.
+The owner dashboard lives at `/manage`, with no entrance from the public app. Sign in with ChatGPT; the server binds access to the Site owner's verified account and rejects all other accounts. It reports visitors, sessions, returning browsers, referrals, device and Home Screen use, feature adoption, and Gullie activity across 7, 30, or 90 days. A traffic split estimates likely humans, AI/bots, and unknown traffic, with separate page-load and feature-activity counts and detected automation details. Earlier events remain unknown; historical bot traffic cannot be reconstructed.
 
 Analytics stores coarse usage events, never balances, earnings amounts, goal names, conversation text, full referral URLs, or email addresses. Do Not Track and Global Privacy Control are respected. See [analytics and search setup](docs/analytics.md) and the app's [privacy details](https://gullak-aditya.thegameraadi3.chatgpt.site/privacy).
 

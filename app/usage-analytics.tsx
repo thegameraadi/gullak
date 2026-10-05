@@ -5,6 +5,8 @@ import {eventNames, trafficSource, type AnalyticsEventName} from "@/lib/analytic
 export default function UsageAnalytics() {
   useEffect(() => {
     if (location.pathname !== "/" || navigator.doNotTrack === "1" || (navigator as Navigator & {globalPrivacyControl?:boolean}).globalPrivacyControl) return;
+    const pageLoadId = document.body.dataset.gullakVisit;
+    let interaction = false;
     let visitorId = crypto.randomUUID();
     try { const saved = JSON.parse(localStorage.getItem("gullak-usage-visitor") || "null"); if (saved?.id && Date.now()-saved.at<90*86400000) visitorId=saved.id; localStorage.setItem("gullak-usage-visitor",JSON.stringify({id:visitorId,at:Date.now()})); } catch {}
     const initialSource = trafficSource(document.referrer, new URLSearchParams(location.search).get("utm_source") || "", location.origin);
@@ -15,7 +17,7 @@ export default function UsageAnalytics() {
     const flush=(beacon=false)=>{
       clearTimeout(timer); if(!queue.length)return;
       const events=queue.splice(0,12), standalone=window.matchMedia("(display-mode: standalone)").matches || !!(navigator as Navigator & {standalone?:boolean}).standalone;
-      const body=JSON.stringify({visitorId,sessionId,source,standalone,events});
+      const body=JSON.stringify({visitorId,sessionId,source,standalone,events,...(pageLoadId ? {pageLoadId} : {}),signals:{automation:navigator.webdriver===true,interaction}});
       if(beacon && navigator.sendBeacon?.("/api/analytics",new Blob([body],{type:"application/json"})))return;
       void fetch("/api/analytics",{method:"POST",headers:{"Content-Type":"application/json"},body,keepalive:true}).catch(()=>{});
     };
@@ -25,11 +27,13 @@ export default function UsageAnalytics() {
       if(queue.length>=12)flush();else {clearTimeout(timer);timer=setTimeout(()=>flush(),600);}
     };
     const onUsage=(e:Event)=>{const detail=(e as CustomEvent).detail;if(detail && eventNames.includes(detail.name))add(detail.name,["none","built-in","ai"].includes(detail.engine)?detail.engine:"none");};
+    const onInteraction=(e:Event)=>{if(e.isTrusted && !interaction){interaction=true;add("visitor_engaged");}};
     const onHide=()=>{if(document.visibilityState==="hidden")flush(true);};
     const onPageHide=()=>flush(true);
     window.addEventListener("gullak:usage",onUsage);document.addEventListener("visibilitychange",onHide);window.addEventListener("pagehide",onPageHide);
+    window.addEventListener("pointerdown",onInteraction,{capture:true,passive:true});window.addEventListener("keydown",onInteraction,true);
     add("page_view");
-    return()=>{flush(true);window.removeEventListener("gullak:usage",onUsage);document.removeEventListener("visibilitychange",onHide);window.removeEventListener("pagehide",onPageHide);};
+    return()=>{flush(true);window.removeEventListener("gullak:usage",onUsage);document.removeEventListener("visibilitychange",onHide);window.removeEventListener("pagehide",onPageHide);window.removeEventListener("pointerdown",onInteraction,true);window.removeEventListener("keydown",onInteraction,true);};
   },[]);
   return null;
 }

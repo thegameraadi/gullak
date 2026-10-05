@@ -82,3 +82,12 @@ Collector tests verify fixed events, bounded batches, deduplication, same-origin
 Browser checks used fictional local preview data at 1440×900, 430×932, and 320×568. No horizontal document overflow was found. The 90-day selector and Apply worked; daily values expanded into a bounded scrollable table. Charts and tables receive keyboard focus, and keyboard scrolling reached later rows. Phone chart labels were spaced to avoid overlap. These are desktop viewport simulations, not physical iPhone Safari checks.
 
 Public welcome metadata, canonical URLs, WebApplication structured data, sitemap, robots rules, and authenticated/private noindex headers were checked in the built Worker. Google Search Console ownership and indexing are separate live setup steps; a request to index is not evidence of ranking. Product analytics starts at release and does not reconstruct older traffic.
+
+
+## Human and bot traffic split — October 5, 2026
+
+Added likely-human, AI/bot, and unknown traffic estimates to the private owner dashboard for each existing reporting period. Successful home/privacy document requests are recorded independently of JavaScript, with a random per-document ID and coarse classification only. Feature activity excludes page-view and interaction-detection events. Declared crawler identities, browser automation, and optional platform-owned verified-bot metadata are explained; user-agent identities and browser signals are not treated as proof. Historical activity remains unknown.
+
+All 68 unit tests and TypeScript passed. Built Worker integration verified additive migrations, server-only crawler visits, caller visit-header replacement, legacy unknown records, linked interaction upgrades, bot signals resisting later human claims, exact category and automation subtotals, DNT/GPC and prefetch exclusions, private payload rejection, and existing account/owner-access safeguards.
+
+Browser checks used local fictional data and actual local browser actions at 1440×900, 430×932, and 320×568. A Gullie action upgraded the linked browser visit without labelling AI feature use as bot traffic. Cards stayed inside the viewport, the automation table fit without document overflow, its disclosure worked with Enter, and Tab reached the table region. Empty traffic records and populated bot records were reviewed. These are desktop viewport simulations, not physical iPhone Safari checks.

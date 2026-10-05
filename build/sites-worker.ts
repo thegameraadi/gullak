@@ -1,6 +1,7 @@
 import handler from "vinext/server/fetch-handler";
 import { runWithConnectorBinding } from "../lib/connector-context";
 import type { ConnectorBinding } from "../lib/connector-contract.mjs";
+import {visitRequest,recordVisit} from "./traffic-visits";
 
 export default {
   async fetch(request: Request, env: Cloudflare.Env, ctx: ExecutionContext<{ CONNECTORS?: ConnectorBinding }>) {
@@ -23,7 +24,11 @@ export default {
         },
       };
     }
-    const response = await runWithConnectorBinding(binding, () => handler.fetch(request, env, ctx));
+    const visit = visitRequest(request);
+    const response = await runWithConnectorBinding(binding, () => handler.fetch(visit.request, env, ctx));
+    if (env.DB && visit.id && visit.page && response.status === 200 && response.headers.get("content-type")?.includes("text/html")) {
+      ctx.waitUntil(recordVisit(env.DB, request, visit.id, visit.page).catch(() => { console.error("Page visit analytics unavailable"); }));
+    }
     if (response.headers.get("content-type")?.includes("text/html") || response.headers.get("content-type")?.includes("text/x-component")) {
       const headers = new Headers(response.headers);
       headers.set("Cache-Control", "private, no-store");

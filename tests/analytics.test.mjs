@@ -32,3 +32,8 @@ test('platform categories and completed actions are coarse and omit action paylo
  assert.equal(actionAnalyticsEvent('settings',{currency:'INR'}),'currency_changed');
  assert.equal(actionAnalyticsEvent('reset',{}),null);assert.equal(actionAnalyticsEvent('constructor',{}),null);
 });
+test('traffic classification accepts only a load ID and two boolean signals, preserving old clients',()=>{
+ const b=batch();assert.deepEqual(parseAnalyticsBatch(b),b);
+ const value={...b,pageLoadId:crypto.randomUUID(),signals:{automation:false,interaction:true}};assert.deepEqual(parseAnalyticsBatch(value),value);
+ for(const change of [{pageLoadId:'raw-url'},{signals:{automation:'false',interaction:true}},{signals:{automation:false,interaction:true,ip:'private'}},{signals:[]},{signals:{automation:false}},{signals:null}])assert.equal(parseAnalyticsBatch({...b,...change}),null);
+});

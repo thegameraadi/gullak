@@ -81,10 +81,56 @@ try{
  assert.equal((await sendUsage()).status,204);assert.equal((await sendUsage()).status,204);
  const report=await(await mf.dispatchFetch(base+'/api/manage?days=7',{headers})).json();assert.equal(report.summary.visitors,1);assert.equal(report.summary.sessions,1);assert.equal(report.summary.pageViews,1);assert.equal(report.summary.goalsCreated,1);assert.equal(report.features.find(f=>f.label==='gullie_opened').events,1);assert.equal(report.sources[0].label,'bay-area-builders');assert.equal(report.devices[0].label,'Phone');assert.equal(report.installation[0].label,1);assert.equal(report.modes[0].label,'Guest');assert.equal(report.daily.length,7);assert.doesNotMatch(JSON.stringify(report),/qa-owner|qa@test|amountCents|state_json|Private goal/);
  assert.equal((await mf.dispatchFetch(base+'/api/manage?days=arbitrary',{headers})).status,200);
+ // The split does not invent human evidence for legacy records.
+ assert.equal(report.traffic.classes.find(x=>x.category==='unknown').activities,2);
+ assert.equal(report.traffic.classes.find(x=>x.category==='human').activities,0);
+ await db.exec('DELETE FROM gullak_analytics_events; DELETE FROM gullak_analytics_visits; DELETE FROM gullak_analytics_visitors;');
+ const browser='Mozilla/5.0 (iPhone) AppleWebKit/605.1.15 Version/18.0 Mobile/15E148 Safari/604.1';
+ const pageVisit=async(agent=browser,extra={})=>{
+   const response=await mf.dispatchFetch(base+'/',{headers:{'User-Agent':agent,...extra}});assert.equal(response.status,200);
+   const html=await response.text(),id=html.match(/data-gullak-visit="([a-f0-9-]+)"/)?.[1];assert.match(id,/^[a-f0-9-]{36}$/);
+   // waitUntil persistence is asynchronous; await its observable completion.
+   for(let attempt=0;attempt<20;attempt++){if(await db.prepare('SELECT id FROM gullak_analytics_visits WHERE id=?').bind(id).first())return id;await new Promise(r=>setTimeout(r,10));}
+   assert.fail('Successful document request was not recorded');
+ };
+ const callerLoadId=crypto.randomUUID();
+ const humanVisit=await pageVisit(browser,{'x-gullak-visit-id':callerLoadId,'cf-verified-bot':'true'});assert.notEqual(humanVisit,callerLoadId);
+ assert.equal((await db.prepare('SELECT traffic_class FROM gullak_analytics_visits WHERE id=?').bind(humanVisit).first()).traffic_class,'unknown');
+ const forVisit=(pageLoadId,names,signals)=>({...usage,visitorId:crypto.randomUUID(),sessionId:crypto.randomUUID(),pageLoadId,signals,events:names.map(name=>({id:crypto.randomUUID(),name,engine:'none'}))});
+ const humanBatch=forVisit(humanVisit,['page_view','gullie_opened'],{automation:false,interaction:false});
+ assert.equal((await sendUsage(humanBatch)).status,204);
+ assert.equal((await sendUsage({...humanBatch,signals:{automation:false,interaction:true},events:[{id:crypto.randomUUID(),name:'visitor_engaged',engine:'none'}]})).status,204);
+ assert.equal((await db.prepare('SELECT traffic_class FROM gullak_analytics_visits WHERE id=?').bind(humanVisit).first()).traffic_class,'human');
+ assert.equal((await db.prepare("SELECT COUNT(*) AS n FROM gullak_analytics_events WHERE page_load_id=? AND traffic_class='human'").bind(humanVisit).first()).n,3);
+ const botVisit=await pageVisit('Mozilla/5.0 (compatible; GPTBot/1.3; +https://openai.com/gptbot)');
+ const noScriptSearch=await pageVisit('Mozilla/5.0 (compatible; Googlebot/2.1; +https://www.google.com/bot.html)');
+ assert.equal((await db.prepare('SELECT traffic_class FROM gullak_analytics_visits WHERE id=?').bind(noScriptSearch).first()).traffic_class,'bot');
+ // A human claim cannot erase a declared bot on the original page request.
+ assert.equal((await sendUsage(forVisit(botVisit,['goal_created'],{automation:false,interaction:true}))).status,204);
+ const automationVisit=await pageVisit();
+ const automationBatch=forVisit(automationVisit,['page_view','gullie_opened'],{automation:true,interaction:true});
+ assert.equal((await sendUsage(automationBatch)).status,204);
+ assert.equal((await sendUsage({...automationBatch,signals:{automation:false,interaction:true},events:[{id:crypto.randomUUID(),name:'income_recorded',engine:'none'}]})).status,204);
+ assert.equal((await db.prepare('SELECT traffic_class FROM gullak_analytics_visits WHERE id=?').bind(automationVisit).first()).traffic_class,'bot');
+ const passiveVisit=await pageVisit();
+ assert.equal((await sendUsage(forVisit(passiveVisit,['page_view','goal_created'],{automation:false,interaction:false}))).status,204);
+ const beforeExcluded=(await db.prepare('SELECT COUNT(*) AS n FROM gullak_analytics_visits').first()).n;
+ for(const extra of [{DNT:'1'},{'Sec-GPC':'1'},{purpose:'prefetch'},{'next-router-prefetch':'1'}]){
+   const response=await mf.dispatchFetch(base+'/',{headers:{'User-Agent':browser,...extra}});assert.doesNotMatch(await response.text(),/data-gullak-visit=/);
+ }
+ await(await mf.dispatchFetch(base+'/manage',{headers})).text();await mf.dispatchFetch(base+'/api/version');
+ assert.equal((await db.prepare('SELECT COUNT(*) AS n FROM gullak_analytics_visits').first()).n,beforeExcluded);
+ const split=await(await mf.dispatchFetch(base+'/api/manage?days=7',{headers})).json();
+ assert.deepEqual(split.traffic.classes,[{category:'human',visits:1,activities:1},{category:'bot',visits:3,activities:3},{category:'unknown',visits:1,activities:1}]);
+ assert.deepEqual(split.traffic.automation.find(x=>x.signal==='declared:openai-training'),{signal:'declared:openai-training',visits:1,activities:1});
+ assert.deepEqual(split.traffic.automation.find(x=>x.signal==='declared:search-crawler'),{signal:'declared:search-crawler',visits:1,activities:0});
+ assert.deepEqual(split.traffic.automation.find(x=>x.signal==='browser-automation'),{signal:'browser-automation',visits:1,activities:2});
+ assert.doesNotMatch(JSON.stringify(split),new RegExp([humanVisit,botVisit,passiveVisit,'Mozilla','qa@test.invalid'].join('|')));
+ const splitPage=await(await mf.dispatchFetch(base+'/manage',{headers})).text();assert.match(splitPage,/Humans and AI/);assert.match(splitPage,/Likely humans/);assert.match(splitPage,/Estimated classification/);assert.match(splitPage,/OpenAI/);
  // Public SEO is indexable, while authenticated account content stays private.
  assert.match(welcome,/application\/ld\+json/);assert.match(welcome,/A simple savings goal tracker/);assert.doesNotMatch(welcome,/<meta name="robots" content="noindex/);assert.doesNotMatch(welcome,/href="\/manage/);
  const privateHome=await mf.dispatchFetch(base+'/',{headers});assert.equal(privateHome.headers.get('x-robots-tag'),'noindex, nofollow');
  const robots=await(await mf.dispatchFetch(base+'/robots.txt')).text();assert.match(robots,/Sitemap: https:\/\/gullak-aditya\.thegameraadi3\.chatgpt\.site\/sitemap.xml/);
  const sitemap=await(await mf.dispatchFetch(base+'/sitemap.xml')).text();assert.match(sitemap,/<loc>https:\/\/gullak-aditya\.thegameraadi3\.chatgpt\.site\/<\/loc>/);assert.doesNotMatch(sitemap,/\/manage|\/api\//);
- console.log('Passed built Worker: ledger and account invariants; anonymous and other-account management denial; exact owner binding and fail-closed configuration; private SSR/API headers; deduplicated privacy-safe analytics; opt-out signals; real aggregate counts; public SEO and private account indexing protection.');
+ console.log('Passed built Worker: ledger/account invariants; owner-only access; privacy-safe analytics and opt-outs; legacy unknown activity; server visits without JavaScript; browser interaction upgrades; sticky bot signals; excluded management/API/prefetch traffic; exact visit/activity split and automation subtotals; public SEO and private account indexing protection.');
 }finally{await mf.dispose();}

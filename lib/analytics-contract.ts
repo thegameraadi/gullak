@@ -1,4 +1,4 @@
-export const eventNames = ["page_view", "guest_started", "sign_in_started", "dashboard_opened", "goal_created", "income_recorded", "contribution_saved", "purchase_recorded", "history_edited", "backup_restored", "import_completed", "currency_changed", "gullie_opened", "gullie_message_sent", "gullie_reply_received", "app_error"] as const;
+export const eventNames = ["page_view", "visitor_engaged", "guest_started", "sign_in_started", "dashboard_opened", "goal_created", "income_recorded", "contribution_saved", "purchase_recorded", "history_edited", "backup_restored", "import_completed", "currency_changed", "gullie_opened", "gullie_message_sent", "gullie_reply_received", "app_error"] as const;
 export type AnalyticsEventName = typeof eventNames[number];
 export const sources = ["direct", "google", "bing", "github", "social", "friends", "bay-area-builders", "other"] as const;
 export const engines = ["none", "built-in", "ai"] as const;
@@ -7,13 +7,15 @@ const onlyKeys = (value:object, keys:string[]) => Object.keys(value).every(k => 
 export function parseAnalyticsBatch(value:unknown) {
   if (!value || typeof value !== "object" || Array.isArray(value)) return null;
   const b = value as Record<string, unknown>;
-  if (!onlyKeys(b,["visitorId","sessionId","source","standalone","events"]) || typeof b.visitorId !== "string" || !uuid.test(b.visitorId) || typeof b.sessionId !== "string" || !uuid.test(b.sessionId) || !sources.includes(b.source as typeof sources[number]) || typeof b.standalone !== "boolean" || !Array.isArray(b.events) || b.events.length < 1 || b.events.length > 12) return null;
+  if (!onlyKeys(b,["visitorId","sessionId","source","standalone","events","pageLoadId","signals"]) || typeof b.visitorId !== "string" || !uuid.test(b.visitorId) || typeof b.sessionId !== "string" || !uuid.test(b.sessionId) || !sources.includes(b.source as typeof sources[number]) || typeof b.standalone !== "boolean" || !Array.isArray(b.events) || b.events.length < 1 || b.events.length > 12) return null;
+  if (b.pageLoadId !== undefined && (typeof b.pageLoadId !== "string" || !uuid.test(b.pageLoadId))) return null;
+  if (b.signals !== undefined && (!b.signals || typeof b.signals !== "object" || Array.isArray(b.signals) || !onlyKeys(b.signals,["automation","interaction"]) || typeof (b.signals as Record<string,unknown>).automation !== "boolean" || typeof (b.signals as Record<string,unknown>).interaction !== "boolean")) return null;
   const events: {id:string;name:AnalyticsEventName;engine:typeof engines[number]}[] = [];
   for (const item of b.events) {
     if (!item || typeof item !== "object" || Array.isArray(item) || !onlyKeys(item,["id","name","engine"]) || typeof item.id !== "string" || !uuid.test(item.id) || !eventNames.includes(item.name) || !engines.includes(item.engine)) return null;
     events.push({id:item.id,name:item.name,engine:item.name === "gullie_reply_received" ? item.engine : "none"});
   }
-  return {visitorId:b.visitorId,sessionId:b.sessionId,source:b.source as typeof sources[number],standalone:b.standalone,events};
+  return {visitorId:b.visitorId,sessionId:b.sessionId,source:b.source as typeof sources[number],standalone:b.standalone,events,...(b.pageLoadId ? {pageLoadId:b.pageLoadId as string} : {}),...(b.signals ? {signals:b.signals as {automation:boolean;interaction:boolean}} : {})};
 }
 export function trafficSource(referrer:string, campaign:string, ownOrigin="") {
   if (campaign === "friends" || campaign === "bay-area-builders") return campaign;

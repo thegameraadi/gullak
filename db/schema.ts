@@ -31,7 +31,19 @@ export const analyticsEvents = sqliteTable("gullak_analytics_events", {
   standalone: integer("standalone").notNull(),
   source: text("source").notNull(),
   engine: text("engine").notNull(),
+  pageLoadId: text("page_load_id"),
+  trafficClass: text("traffic_class").notNull().default("unknown"),
+  trafficSignal: text("traffic_signal").notNull().default("legacy"),
 }, table => [
   index("idx_gullak_analytics_events_time").on(table.occurredAt),
   index("idx_gullak_analytics_events_visitor_time").on(table.visitorId, table.occurredAt),
+  index("idx_gullak_analytics_events_page_load").on(table.pageLoadId),
 ]);
+
+export const analyticsVisits = sqliteTable("gullak_analytics_visits", {
+  id: text("id").primaryKey(),
+  occurredAt: text("occurred_at").notNull(),
+  page: text("page").notNull(),
+  trafficClass: text("traffic_class").notNull(),
+  trafficSignal: text("traffic_signal").notNull(),
+}, table => [index("idx_gullak_analytics_visits_time").on(table.occurredAt)]);

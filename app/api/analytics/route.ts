@@ -1,6 +1,8 @@
 import {getChatGPTUser} from "../../chatgpt-auth";
 import {database} from "../../store";
 import {parseAnalyticsBatch,clientPlatform} from "@/lib/analytics-contract";
+import {classifyTraffic} from "@/lib/traffic-classification";
+import {edgeVerifiedBot} from "../../../build/traffic-visits";
 export const dynamic="force-dynamic";
 const headers={"Cache-Control":"no-store","X-Robots-Tag":"noindex, nofollow"};
 const response=(status:number)=>new Response(null,{status,headers});
@@ -9,7 +11,7 @@ export async function POST(request:Request) {
   const origin=request.headers.get("origin");
   if((origin && origin!==new URL(request.url).origin)||request.headers.get("sec-fetch-site")==="cross-site")return response(403);
   if(!request.headers.get("content-type")?.includes("application/json"))return response(415);
-  if(request.headers.get("dnt")==="1"||request.headers.get("sec-gpc")==="1"||/bot|crawler|spider/i.test(request.headers.get("user-agent")||""))return response(204);
+  if(request.headers.get("dnt")==="1"||request.headers.get("sec-gpc")==="1")return response(204);
   if(Number(request.headers.get("content-length")||0)>6000)return response(413);
   let batch:ReturnType<typeof parseAnalyticsBatch>;
   try {const body=await request.text();if(body.length>6000)return response(413);batch=parseAnalyticsBatch(JSON.parse(body));}catch{return response(400);}
@@ -22,9 +24,18 @@ export async function POST(request:Request) {
   limits.set(throttleKey,limit);if(limit.count>120)return response(429);
   try {
     const user=await getChatGPTUser(), mode=user?"Signed in":"Guest", platform=clientPlatform(request.headers.get("user-agent")||""), at=new Date(now).toISOString(),db=database();
+    const incoming=classifyTraffic(request.headers.get("user-agent")||"",batch.signals,edgeVerifiedBot(request));
+    const observed=batch.pageLoadId ? await db.prepare("SELECT traffic_class,traffic_signal FROM gullak_analytics_visits WHERE id=?").bind(batch.pageLoadId).first<{traffic_class:string;traffic_signal:string}>() : null;
+    const traffic=observed?.traffic_class==="bot" ? {category:"bot" as const,signal:observed.traffic_signal} : incoming;
     await db.batch([
       db.prepare("INSERT INTO gullak_analytics_visitors (id,first_seen,last_seen) VALUES (?,?,?) ON CONFLICT(id) DO UPDATE SET last_seen=excluded.last_seen").bind(batch.visitorId,at,at),
-      ...batch.events.map(e=>db.prepare("INSERT OR IGNORE INTO gullak_analytics_events (id,visitor_id,session_id,name,occurred_at,mode,device,os,browser,standalone,source,engine) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)").bind(e.id,batch.visitorId,batch.sessionId,e.name,at,mode,platform.device,platform.os,platform.browser,batch.standalone?1:0,batch.source,e.engine)),
+      ...batch.events.map(e=>db.prepare("INSERT OR IGNORE INTO gullak_analytics_events (id,visitor_id,session_id,name,occurred_at,mode,device,os,browser,standalone,source,engine,page_load_id,traffic_class,traffic_signal) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)").bind(e.id,batch.visitorId,batch.sessionId,e.name,at,mode,platform.device,platform.os,platform.browser,batch.standalone?1:0,batch.source,e.engine,batch.pageLoadId??null,traffic.category,traffic.signal)),
+      ...(batch.pageLoadId && traffic.category!=="unknown" ? [
+        // Evidence may strengthen a visit from unknown to human, or from either
+        // to automated. A later human claim must never erase a bot signal.
+        db.prepare("UPDATE gullak_analytics_visits SET traffic_class=?,traffic_signal=? WHERE id=? AND traffic_class!='bot'").bind(traffic.category,traffic.signal,batch.pageLoadId),
+        db.prepare("UPDATE gullak_analytics_events SET traffic_class=?,traffic_signal=? WHERE page_load_id=? AND traffic_class!='bot'").bind(traffic.category,traffic.signal,batch.pageLoadId),
+      ] : []),
     ]);
     // Bounded maintenance; never delay product actions or delete account data.
     if(Math.random()<1/32) {
