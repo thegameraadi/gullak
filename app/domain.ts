@@ -1,0 +1,62 @@
+export const categories = ["Tech", "Home", "Getting around", "Experiences"] as const;
+export type Category = (typeof categories)[number];
+export type Goal = { id:string; name:string; category:Category; targetCents:number; draft:boolean; date:string; note:string; status:"active"|"purchased"; earned:number };
+export type Entry = { id:string; kind:"income"|"save"|"allocate"|"release"|"purchase"|"withdraw"; amountCents:number; goalId:string|null; goalName:string; goalDeltaCents:number; poolDeltaCents:number; note:string; date:string; createdAt:string; sourceId?:string };
+export type State = { schemaVersion:1; goals:Goal[]; entries:Entry[]; appliedRequests:string[] };
+export type Snapshot = { state:State; version:number; updatedAt:string };
+export class DomainError extends Error { constructor(message:string) { super(message); this.name="DomainError"; } }
+export const money=(cents:number)=>new Intl.NumberFormat("en-US",{style:"currency",currency:"USD",maximumFractionDigits:cents%100?2:0}).format(cents/100);
+export const available=(s:State)=>s.entries.reduce((n,e)=>n+e.poolDeltaCents,0);
+export const balance=(s:State,id:string)=>s.entries.filter(e=>e.goalId===id).reduce((n,e)=>n+e.goalDeltaCents,0);
+export const reserved=(s:State)=>s.goals.reduce((n,g)=>n+balance(s,g.id),0);
+export const spent=(s:State)=>s.entries.filter(e=>e.kind==="purchase"||e.kind==="withdraw").reduce((n,e)=>n+e.amountCents,0);
+export const received=(s:State)=>s.entries.filter(e=>e.kind==="income"||e.kind==="save").reduce((n,e)=>n+e.amountCents,0);
+function amount(v:unknown):number { if(!Number.isSafeInteger(v)||(v as number)<1||(v as number)>100000000)throw new DomainError("Enter an amount between $0.01 and $1,000,000.");return v as number; }
+export function dollars(v:string):number { const x=v.trim().replace(/[$,]/g,"");if(!/^\d+(\.\d{1,2})?$/.test(x))throw new DomainError("Enter a dollar amount with up to two decimal places.");const [w,f=""]=x.split(".");return amount(Number(w)*100+Number(f.padEnd(2,"0"))); }
+function txt(v:unknown,max:number,required=false):string {if(typeof v!=="string")throw new DomainError("Check your text fields.");const t=v.trim();if(t.length>max||(required&&!t))throw new DomainError(required?`Use a name with 1–${max} characters.`:`Keep this field under ${max} characters.`);return t;}
+function date(v:unknown,optional=false):string {if(optional&&(v===""||v===undefined))return "";if(typeof v!=="string"||!/^\d{4}-\d{2}-\d{2}$/.test(v)||Number.isNaN(Date.parse(v+"T12:00:00Z"))||new Date(v+"T12:00:00Z").toISOString().slice(0,10)!==v||v<"2000-01-01"||v>"2100-12-31")throw new DomainError("Choose a valid date.");return v;}
+function category(v:unknown):Category {if(!categories.includes(v as Category))throw new DomainError("Choose a category.");return v as Category;}
+export function initialState():State {return {schemaVersion:1,entries:[],appliedRequests:[],goals:[
+ {id:"monitor",name:"Desk monitor",category:"Tech",targetCents:40000},
+ {id:"tv",name:"4K TV",category:"Home",targetCents:80000},
+ {id:"scooter",name:"A little scooter",category:"Getting around",targetCents:70000},
+ {id:"phone",name:"iPhone 18 Pro Max",category:"Tech",targetCents:160000},
+ {id:"trip",name:"The next trip",category:"Experiences",targetCents:50000},
+ ].map(g=>({...g,category:g.category as Category,draft:true,date:"",note:"",status:"active",earned:0}))};}
+export function suggestSplit(s:State,total:number):{goalId:string;amountCents:number}[]{amount(total);const pending=s.goals.filter(g=>g.status==="active"&&!g.draft&&balance(s,g.id)<g.targetCents).map(g=>({id:g.id,left:g.targetCents-balance(s,g.id),value:0}));let rem=total;while(rem>0){const open=pending.filter(g=>g.left>0);if(!open.length)break;const share=Math.max(1,Math.floor(rem/open.length));for(const g of open){const take=Math.min(g.left,share,rem);g.value+=take;g.left-=take;rem-=take;if(!rem)break;}}return pending.filter(g=>g.value>0).map(g=>({goalId:g.id,amountCents:g.value}));}
+export function assertAccounting(s:State){const pool=available(s),saved=reserved(s);if(!Number.isSafeInteger(pool)||pool<0||!Number.isSafeInteger(saved)||saved<0||s.goals.some(g=>balance(s,g.id)<0)||received(s)-spent(s)!==pool+saved)throw new DomainError("The balances do not match. Nothing was saved.");}
+export function applyAction(original:State,action:string,raw:unknown,requestId:string,now=new Date().toISOString()):State{
+ if(!/^[a-zA-Z0-9_-]{8,80}$/.test(requestId))throw new DomainError("Please retry this action.");
+ if(original.appliedRequests.includes(requestId))return original;
+ if(!raw||typeof raw!=="object"||Array.isArray(raw))throw new DomainError("Check the details and try again.");
+ const p=raw as Record<string,unknown>;let s:State=structuredClone(original);
+ const find=(id:unknown)=>{const g=s.goals.find(g=>g.id===id);if(!g)throw new DomainError("This gullak no longer exists. Refresh and try again.");return g;};
+ const add=(kind:Entry["kind"],amt:number,g:Goal|null,gd:number,pd:number,note?:string,entryDate?:string,entrySource?:string)=>{if(s.entries.length>=10000)throw new DomainError("Your ledger is full. Export a backup before adding more entries.");const source=entrySource??p.sourceId;s.entries.push({id:requestId+"-"+s.entries.length,kind,amountCents:amt,goalId:g?.id??null,goalName:g?.name??"",goalDeltaCents:gd,poolDeltaCents:pd,note:note??txt(p.note??"",200),date:date(entryDate??p.date??now.slice(0,10)),createdAt:now,...(typeof source==="string"?{sourceId:txt(source,200)}:{})});};
+ switch(action){
+ case "createGoal":if(s.goals.length>=100)throw new DomainError("You can keep up to 100 gullaks.");s.goals.push({id:requestId,name:txt(p.name,60,true),category:category(p.category),targetCents:amount(p.targetCents),date:date(p.date,true),note:txt(p.note??"",300),status:"active",draft:false,earned:0});break;
+ case "editGoal":{const g=find(p.goalId);if(g.status!=="active")throw new DomainError("Purchased goals stay in your collection.");Object.assign(g,{name:txt(p.name,60,true),category:category(p.category),targetCents:amount(p.targetCents),date:date(p.date,true),note:txt(p.note??"",300),draft:false});break;}
+ case "deleteGoal":{const g=find(p.goalId);if(balance(s,g.id))throw new DomainError("Release this gullak’s money before deleting it.");s.goals=s.goals.filter(x=>x.id!==g.id);break;}
+ case "income":{const amt=amount(p.amountCents);if(p.sourceId&&s.entries.some(e=>e.sourceId===p.sourceId))throw new DomainError("This statement entry is already recorded.");add("income",amt,null,0,amt);break;}
+ case "importIncome":{if(!Array.isArray(p.entries)||!p.entries.length||p.entries.length>5000)throw new DomainError("Choose between 1 and 5,000 deposits.");const seen=new Set(s.entries.map(e=>e.sourceId).filter(Boolean));let count=0;for(const raw of p.entries){if(!raw||typeof raw!=="object")throw new DomainError("Check the statement entries.");const e=raw as Record<string,unknown>,id=txt(e.sourceId,200,true);if(!/^csv-[a-f0-9]{64}$/.test(id))throw new DomainError("This statement entry could not be verified.");if(seen.has(id))continue;const amt=amount(e.amountCents);add("income",amt,null,0,amt,txt(e.note,200),date(e.date),id);seen.add(id);count++;}if(!count)throw new DomainError("These deposits are already recorded.");break;}
+ case "contribute":{const g=find(p.goalId),amt=amount(p.amountCents);if(g.status!=="active")throw new DomainError("This goal has already been purchased.");if(g.draft)throw new DomainError("Confirm this gullak’s target budget before adding money.");if(p.source!=="pool"&&p.source!=="external")throw new DomainError("Choose where this money comes from.");if(p.source==="pool"&&amt>available(s))throw new DomainError("There isn’t enough unallocated money. Choose existing savings instead.");add(p.source==="pool"?"allocate":"save",amt,g,amt,p.source==="pool"?-amt:0);break;}
+ case "split":{if(!Array.isArray(p.allocations)||!p.allocations.length||p.allocations.length>100)throw new DomainError("Choose at least one gullak.");const a=p.allocations as {goalId:string;amountCents:number}[];if(new Set(a.map(x=>x.goalId)).size!==a.length)throw new DomainError("Each gullak can appear once in a split.");const total=a.reduce((n,x)=>n+amount(x.amountCents),0);if(!Number.isSafeInteger(total)||total>available(s))throw new DomainError("This split is larger than your unallocated money.");for(const x of a){const g=find(x.goalId);if(g.status!=="active"||g.draft)throw new DomainError("Confirm the target budgets for this split.");add("allocate",x.amountCents,g,x.amountCents,-x.amountCents);}break;}
+ case "release":{const g=find(p.goalId),amt=amount(p.amountCents);if(amt>balance(s,g.id))throw new DomainError("You can only release money already reserved here.");add("release",amt,g,-amt,amt);break;}
+ case "purchase":{const g=find(p.goalId),amt=amount(p.amountCents),saved=balance(s,g.id);if(g.status!=="active"||g.draft)throw new DomainError("Confirm this goal before recording a purchase.");if(amt>saved)throw new DomainError("The purchase cost is greater than the money in this gullak.");add("purchase",amt,g,-amt,0);if(saved>amt)add("release",saved-amt,g,-(saved-amt),saved-amt,"Left over after purchase");g.status="purchased";g.earned=4;break;}
+ case "withdraw":{const amt=amount(p.amountCents);if(amt>available(s))throw new DomainError("You can only remove money that is unallocated.");add("withdraw",amt,null,0,-amt);break;}
+ case "restore":s=validateBackup(p.state);break;
+ default:throw new DomainError("That action is not supported.");
+ }
+ for(const g of s.goals)if(!g.draft)g.earned=Math.max(g.earned,Math.min(4,Math.floor(balance(s,g.id)*4/g.targetCents)));
+ s.appliedRequests=[...s.appliedRequests,requestId].slice(-200);assertAccounting(s);return s;
+}
+export function validateBackup(input:unknown):State{
+ if(!input||typeof input!=="object")throw new DomainError("This is not a Gullak backup.");const s=input as State;
+ if(s.schemaVersion!==1||!Array.isArray(s.goals)||!Array.isArray(s.entries)||s.goals.length>100||s.entries.length>10000)throw new DomainError("This backup format is not supported.");
+ const ids=new Set<string>();const goals:Goal[]=s.goals.map(g=>{const id=txt(g.id,80,true);if(ids.has(id))throw new DomainError("This backup has duplicate gullaks.");ids.add(id);if(typeof g.draft!=="boolean"||!["active","purchased"].includes(g.status)||!Number.isInteger(g.earned)||g.earned<0||g.earned>4)throw new DomainError("This backup has an invalid gullak.");return {id,name:txt(g.name,60,true),category:category(g.category),targetCents:amount(g.targetCents),date:date(g.date,true),note:txt(g.note,300),status:g.status,draft:g.draft,earned:g.earned};});
+ const entryIds=new Set<string>(),sourceIds=new Set<string>();const entries:Entry[]=s.entries.map(e=>{const id=txt(e.id,160,true);if(entryIds.has(id))throw new DomainError("This backup has duplicate entries.");entryIds.add(id);const amt=amount(e.amountCents),gd=e.goalDeltaCents,pd=e.poolDeltaCents;
+ if(!Number.isSafeInteger(gd)||!Number.isSafeInteger(pd)||!["income","save","allocate","release","purchase","withdraw"].includes(e.kind))throw new DomainError("This backup has an invalid entry.");const expected:Record<Entry["kind"],[number,number]>={income:[0,amt],save:[amt,0],allocate:[amt,-amt],release:[-amt,amt],purchase:[-amt,0],withdraw:[0,-amt]};
+ if(gd!==expected[e.kind][0]||pd!==expected[e.kind][1]||(gd!==0&&typeof e.goalId!=="string")||(gd===0&&e.goalId!==null))throw new DomainError("This backup has an inconsistent entry.");
+ if(typeof e.createdAt!=="string"||Number.isNaN(Date.parse(e.createdAt)))throw new DomainError("This backup has an invalid timestamp.");let sourceId:string|undefined;if(e.sourceId){sourceId=txt(e.sourceId,200);if(sourceIds.has(sourceId))throw new DomainError("This backup has duplicate statement entries.");sourceIds.add(sourceId);}
+ return {id,kind:e.kind,amountCents:amt,goalId:e.goalId===null?null:txt(e.goalId,80,true),goalName:txt(e.goalName,60),goalDeltaCents:gd,poolDeltaCents:pd,date:date(e.date),note:txt(e.note,200),createdAt:e.createdAt,...(sourceId?{sourceId}:{})};});
+ const result:State={schemaVersion:1,goals,entries,appliedRequests:[]};for(const id of new Set(entries.filter(e=>e.goalId).map(e=>e.goalId!)))if(!ids.has(id)&&balance(result,id)!==0)throw new DomainError("This backup has money in a missing gullak.");if(goals.some(g=>g.status==="purchased"&&balance(result,g.id)!==0))throw new DomainError("Purchased gullaks must have no reserved balance.");assertAccounting(result);return result;
+}
