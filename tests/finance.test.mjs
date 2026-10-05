@@ -50,3 +50,26 @@ test('CSV quoted fields, sign convention, invalid dates and duplicates are handl
  let s=initialState();const entries=a.candidates.map(c=>({sourceId:c.id,note:c.description,date:c.date,amountCents:c.amountCents}));s=apply(s,'importIncome',{entries});assert.equal(available(s),51025);assert.throws(()=>apply(s,'importIncome',{entries}),/already/);assertAccounting(s);
 });
 test('decimal parsing stays exact and disallows ambiguous amounts',()=>{assert.equal(dollars('$1,234.56'),123456);assert.equal(dollars('0.01'),1);assert.equal(dollars('1.1'),110);for(const v of ['-10','1.001','1e3','','$','NaN'])assert.throws(()=>dollars(v));});
+const milestoneCode=ts.transpileModule(readFileSync(new URL('../app/milestones.ts',import.meta.url),'utf8').replace('"./domain"',JSON.stringify(new URL('../app/domain.ts',import.meta.url).href)),{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText;
+const {firstCompletions}=await import('data:text/javascript,'+encodeURIComponent(milestoneCode));
+test('completion fires at the target once, with no replay after a release, retry or restore',()=>{
+ const before=confirm(initialState(),'monitor',10000);
+ const halfway=apply(before,'contribute',{goalId:'monitor',amountCents:5000,source:'external'});
+ assert.deepEqual(firstCompletions(before,halfway,'contribute'),[]);
+ const completed=apply(halfway,'contribute',{goalId:'monitor',amountCents:5000,source:'external'});
+ assert.deepEqual(firstCompletions(halfway,completed,'contribute'),['monitor']);
+ assert.deepEqual(firstCompletions(completed,completed,'contribute'),[]);
+ assert.deepEqual(firstCompletions(halfway,completed,'restore'),[]);
+ const released=apply(completed,'release',{goalId:'monitor',amountCents:2000});
+ const refilled=apply(released,'contribute',{goalId:'monitor',amountCents:2000,source:'pool'});
+ assert.deepEqual(firstCompletions(released,refilled,'contribute'),[]);
+});
+test('one split can complete multiple goals and an actual purchase also completes a goal',()=>{
+ let before=confirm(initialState(),'monitor',10000);before=confirm(before,'tv',10000);
+ before=apply(before,'income',{amountCents:20000});
+ const after=apply(before,'split',{allocations:[{goalId:'monitor',amountCents:10000},{goalId:'tv',amountCents:10000}]});
+ assert.deepEqual(firstCompletions(before,after,'split'),['monitor','tv']);
+ const saved=apply(confirm(initialState(),'monitor',10000),'contribute',{goalId:'monitor',amountCents:8000,source:'external'});
+ const bought=apply(saved,'purchase',{goalId:'monitor',amountCents:8000});
+ assert.deepEqual(firstCompletions(saved,bought,'purchase'),['monitor']);
+});
