@@ -61,3 +61,13 @@ Verified in the local preview using isolated guest test data; no real account fi
 - Settings: currency change, long content scrolling, and Close after reaching the bottom. Goal form: long name, large USD/INR values, expanded details, input focus, submit, and saved card layout. History: long name/note and menu. Dashboard menu and reset confirmation were opened, scrolled, and cancelled; no reset was applied.
 
 The Explain My Balances shortcut now accepts the plural word balances instead of returning fallback help; an existing assistant regression test covers its exact visible label. TypeScript, guest/assistant tests, the production build, and the built Worker smoke test passed. Browser screenshots are saved separately as review evidence.
+
+## Public repository and installed-app updates — October 5, 2026
+
+Added a public Gullak overview, desktop and phone screenshots with fictional guest data, local development instructions, a deployment guide, and GitHub verification workflow. The original framework reference is retained under docs/development.md. GitHub is the public source repository; production continues on the existing Sites URL.
+
+Build inputs now produce a shared browser/server release fingerprint. The anonymous /api/version endpoint is uncached, and HTML/RSC responses are private and uncached. The browser checks releases on startup, pageshow, return to visibility, reconnect, and each visible minute. A pending new release reloads once after a quiet moment, deferring for dialogs, menus, focused editors, and dashboard operations. Updates do not clear guest storage or cookies. The manifests retain their existing ID, scope, and start URL.
+
+All 60 product/update tests passed, including changed/unchanged releases, delayed reloads, failed requests, concurrent checks, disposal, and rollback before reload. TypeScript and the production build passed. Built Worker checks verified the release response, stable version for the same build, no-store page headers, and the existing account/ledger safeguards. Browser checks reconfirmed Gullie at 390x844 and a 390x360 keyboard-height simulation: panel bounds were 390x360, Send was fully inside, and Close stayed visible at y=11. The clean demo dashboard fit the phone width and laptop layout, and the balance explanation matched the demo ledger.
+
+The updater was checked in desktop Browser and automated tests. Real Safari Home Screen lifecycle on an iPhone was not available and is not claimed as verified. A pre-updater suspended session needs one normal close/reopen to load this release; removing the installed icon is unnecessary.

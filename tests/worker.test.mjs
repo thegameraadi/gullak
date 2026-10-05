@@ -11,6 +11,7 @@ const mf=new Miniflare({modules:[{type:'ESModule',path:resolve('dist/server/inde
 try{
  const db=await mf.getD1Database('DB');await db.exec(readFileSync('drizzle/0000_worried_microbe.sql','utf8').replace(/\n/g,' '));
  const base='https://gullak.test';const headers={'oai-authenticated-user-id':'qa-owner','oai-authenticated-user-email':'qa@test.invalid','Content-Type':'application/json'};
+ const versionResponse=await mf.dispatchFetch(base+'/api/version');assert.equal(versionResponse.status,200);assert.match(versionResponse.headers.get('cache-control'),/no-store/);const release=(await versionResponse.json()).version;assert.match(release,/^[a-f0-9]{24}$/);assert.equal((await (await mf.dispatchFetch(base+'/api/version?t=2')).json()).version,release);assert.equal((await mf.dispatchFetch(base+'/')).headers.get('cache-control'),'private, no-store');
  const get=()=>mf.dispatchFetch(base+'/api/account',{headers});
  const post=(version,action,payload,requestId=crypto.randomUUID(),extra={})=>mf.dispatchFetch(base+'/api/account',{method:'POST',headers:{...headers,...extra},body:JSON.stringify({version,action,payload,requestId})});
  assert.equal((await mf.dispatchFetch(base+'/api/account')).status,401);

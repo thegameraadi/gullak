@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import "./gullie-mobile.css";
 import AppIcon from "./app-icon";
+import AppUpdates from "./app-updates";
 
 export const metadata: Metadata = {
   title: "Gullak · Your savings. Your goals.",
@@ -25,7 +26,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head><link rel="preload" href="/fonts/InterVariable.woff2" as="font" type="font/woff2" crossOrigin="anonymous"/></head>
-      <body className="antialiased"><AppIcon/>{children}</body>
+      <body className="antialiased"><AppIcon/><AppUpdates/>{children}</body>
     </html>
   );
 }
