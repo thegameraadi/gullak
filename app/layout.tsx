@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Gullak · A little closer",
+  title: "Gullak · Your savings. Your goals.",
   description: "Your private pots for the things you’re saving for.",
   robots: { index: false, follow: false },
   icons: {

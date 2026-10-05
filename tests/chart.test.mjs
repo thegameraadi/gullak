@@ -1,0 +1,16 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {createRequire} from 'node:module';
+import {pathToFileURL} from 'node:url';
+import React from 'react';
+import {renderToStaticMarkup} from 'react-dom/server';
+import ts from 'typescript';
+const require=createRequire(import.meta.url);
+let code=ts.transpileModule(readFileSync(new URL('../app/savings-chart.tsx',import.meta.url),'utf8').replace('"./domain"',JSON.stringify(new URL('../app/domain.ts',import.meta.url).href)),{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022,jsx:ts.JsxEmit.ReactJSX}}).outputText;
+code=code.replace('"react/jsx-runtime"',JSON.stringify(pathToFileURL(require.resolve('react/jsx-runtime')).href));
+const Chart=(await import('data:text/javascript,'+encodeURIComponent(code))).default;
+const render=entries=>renderToStaticMarkup(React.createElement(Chart,{entries}));
+test('empty history never shows invented growth',()=>{const html=render([]);assert.match(html,/Add your first contribution/);assert.match(html,/M0.00,124.00 L720.00,124.00/);});
+test('only reserved changes affect the chart, including releases',()=>{const html=render([{kind:'income',goalDeltaCents:0,createdAt:'2026-10-04T22:00:00Z'},{kind:'save',goalDeltaCents:5000,createdAt:'2026-10-04T23:00:00Z'},{kind:'release',goalDeltaCents:-2000,createdAt:'2026-10-05T00:00:00Z'}]);assert.match(html,/Current reserved balance: \$30/);assert.match(html,/L360.00,70.00 L720.00,91.60/);assert.doesNotMatch(html,/Add your first contribution/);});
+test('income without allocation leaves the chart empty',()=>{assert.match(render([{kind:'income',goalDeltaCents:0,createdAt:'2026-10-04T22:00:00Z'}]),/Savings history is empty/);});
