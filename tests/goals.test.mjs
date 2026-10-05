@@ -17,7 +17,7 @@ test('automatic categories and specific icons correct old cars and append new go
  s=apply(s,'editGoal',{goalId:car.id,name:'Car',category:'Lifestyle',targetCents:10000,date:'',note:''});assert.equal(categoryForGoal(s.goals.find(g=>g.id===car.id)),'Lifestyle');
 });
 test('currency conversion is exact to USD cents and preserves original amounts in backups',()=>{
- assert.equal(detectCurrency('₹9,000'),'INR');assert.equal(detectCurrency('1000INR'),'INR');assert.equal(detectCurrency('EUR 90'),'EUR');
+ assert.equal(detectCurrency('₹9,000'),'INR');assert.equal(detectCurrency('$100','INR'),'USD');assert.equal(detectCurrency('CAD 100','INR'),'CAD');assert.equal(detectCurrency('1000INR'),'INR');assert.equal(detectCurrency('EUR 90'),'EUR');
  const c=convertInput('₹9,000','INR',fx);assert.equal(c.cents,10000);assert.equal(convertInput('90 EUR','EUR',fx).cents,10000);assert.equal(formatCurrency(10000,'INR',fx),'₹9,000');
  assert.throws(()=>convertInput('1000','INR',null),/exchange rate/);assert.throws(()=>convertInput('0.01','INR',fx),/Converted amount/);assert.throws(()=>convertInput('-100','USD',fx));
  let s=create(initialState());const id=s.goals.at(-1).id;s=apply(s,'contribute',{goalId:id,source:'external',amountCents:c.cents,conversion:c.conversion,date:'2026-10-05'});assert.equal(reserved(s),10000);
@@ -64,4 +64,9 @@ test('a fully funded bought goal lands in wins and leftovers become available',(
 test('purchases with no funding can be restored; below-target purchases do not become wins',()=>{
  let s=create(initialState());let id=s.goals.at(-1).id;s=apply(s,'closeGoal',{goalId:id,reason:'bought',amountCents:5000,confirmed:true});assert.equal(losses(s),5000);assert.equal(validateBackup(s).losses[0].fundedCents,0);assertAccounting(s);
  s=create(s);id=s.goals.at(-1).id;s=apply(s,'contribute',{goalId:id,source:'external',amountCents:6000});s=apply(s,'closeGoal',{goalId:id,reason:'bought',amountCents:5000,confirmed:true});assert.equal(s.goals.some(g=>g.id===id),false);assert.equal(losses(s),5000);assert.equal(available(s),1000);assertAccounting(s);validateBackup(s);
+});
+
+test('setting an initial draft establishes its start date without resetting later edits',()=>{
+ let s=apply(initialState(),'editGoal',{goalId:'monitor',name:'Monitor',category:'auto',targetCents:10000,date:'',note:'',startedOn:'2026-10-01'});assert.equal(s.goals[0].startedOn,'2026-10-01');
+ s=apply(s,'editGoal',{goalId:'monitor',name:'Monitor',category:'auto',targetCents:20000,date:'',note:'',startedOn:'2026-10-05'});assert.equal(s.goals[0].startedOn,'2026-10-01');
 });
