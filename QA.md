@@ -45,3 +45,19 @@ Bundled the official Inter variable WOFF2 with its SIL license, preloaded locall
 Added Use Link beside Use Voice in the goal form. Approved public retailers are fetched with bounded response sizes, timeouts, redirect checks, and no forwarded credentials. Product JSON-LD, Open Graph metadata, and Amazon primary price markup can fill name, original-currency price, description, and category. Ambiguous variants, blocked pages, and unavailable prices remain manual. Other store links can still be saved without fetching arbitrary URLs. The importer prepares a form and never saves or allocates money by itself. Saved source links survive account/guest backups and ordinary edits, and Open Product is available in the goal menu. Game goals receive a gamepad icon.
 
 Reviewed layout constraints for 320, 430, 440, 768, 1024, and 1440 CSS-pixel widths and short keyboard/landscape viewports. Link controls wrap within the form. Gullie’s composer is bounded and scrollable so long errors and keyboard-height windows keep actions reachable; the header reserves space for Close. Runtime browser QA remains unavailable because the required control-browser skill is absent. Full AI activation also remains blocked because OpenAI Developers’ required secure API-key setup skill is not available in this session, although the connector tools are present. No API key was created or exposed.
+
+
+## Browser responsive repair — October 5, 2026
+
+Used the Codex Browser on the published site to reproduce Gullie opening at x = -195, y = -422 in a 390 × 844 viewport. Tailwind's independent `translate: -50% -50%` remained active even though the custom panel cleared `transform`. The panel now also clears `translate`, remains at (0, 0) on portrait phones, and fits its right-side desktop placement. Panel animation is disabled to avoid transient displacement.
+
+Dashboard dialogs now have a fixed header and a separate scrolling body. The outer container uses `overflow: clip`, so focusing a field or a footer button cannot scroll the header and Close out of view. Mobile opening focuses the heading instead of summoning the keyboard; desktop forms still focus the intended input. Gullie returns focus to its launcher and keeps the latest answer visible when its available height changes. Long choices and date inputs are bounded, narrow card actions wrap, financial rows stack on phones, and long dashboard totals receive a full-width column.
+
+Verified in the local preview using isolated guest test data; no real account finances were changed:
+
+- Dashboard container checks at 320 × 568, 375 × 667, 390 × 844, 430 × 932, 440 × 956, 768 × 1024, 1024 × 768, and 1440 × 900 found no horizontal document overflow or dashboard elements outside the screen.
+- Gullie: portrait fullscreen boundaries, desktop right-side panel, 844 × 390 landscape, typing, sending, long replies, scrolling, review/cancel, Close, and focus return.
+- Keyboard-height simulations at 390 × 360 and 375 × 320: composer, Send, Close, scrolling review controls, long form title, optional date/note fields, validation, and submit remained reachable. A real iPhone software keyboard, Safari panning, and safe-area hardware were not available in this desktop Browser.
+- Settings: currency change, long content scrolling, and Close after reaching the bottom. Goal form: long name, large USD/INR values, expanded details, input focus, submit, and saved card layout. History: long name/note and menu. Dashboard menu and reset confirmation were opened, scrolled, and cancelled; no reset was applied.
+
+The Explain My Balances shortcut now accepts the plural word balances instead of returning fallback help; an existing assistant regression test covers its exact visible label. TypeScript, guest/assistant tests, the production build, and the built Worker smoke test passed. Browser screenshots are saved separately as review evidence.
