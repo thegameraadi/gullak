@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import ts from 'typescript';
 import {initialState,applyAction,balance,available,earnedIncome,settingsFor,validateBackup} from '../app/domain.ts';
-const urls={domain:new URL('../app/domain.ts',import.meta.url).href};
+const urls={'money.mjs':new URL('../app/money.mjs',import.meta.url).href,domain:new URL('../app/domain.ts',import.meta.url).href};
 for(const name of ['currency','eta','gullie']){let source=readFileSync(new URL('../app/'+name+'.ts',import.meta.url),'utf8');for(const [key,url] of Object.entries(urls))source=source.replaceAll('"./'+key+'"',JSON.stringify(url));const code=ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText;urls[name]='data:text/javascript,'+encodeURIComponent(code);}
 const {respondToGoalie,dashboardSummary,spokenAmount}=await import(urls.gullie);
 const fx={base:'USD',rates:{USD:{rate:1,date:'2026-10-05'},INR:{rate:90,date:'2026-10-05'}},fetchedAt:'2026-10-05T00:00:00Z',source:'Test fixture'};

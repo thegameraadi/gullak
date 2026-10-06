@@ -16,7 +16,7 @@ Gullak turns things you want to save for into clear goals, balances, and progres
 
 - **Set meaningful goals.** Name a goal, choose a target and optional date, then track funding and estimated progress. Import product details from supported shop links or enter them yourself.
 - **Keep the numbers clear.** Record income, allocate available funds, add existing savings, split funding, and review purchases. History edits recalculate the ledger.
-- **Use USD or INR.** View converted amounts with the reference rate and date; original entry amounts remain in the ledger.
+- **Use USD or INR.** View converted amounts with the reference rate and date; original entry amounts remain in the ledger. Currency changes in goal forms convert the budget, and new FX entries preserve paise without rounding to whole USD cents.
 - **Ask Goalie.** Get goal summaries and balance explanations, or describe a change. Review its effect before saving. Built-in commands work without an AI service; the optional AI adapter requires server configuration.
 - **Choose how to save.** Sign in with ChatGPT for an account saved on the server, or try a device-local guest dashboard. Download and restore backups from Settings.
 - **Make it yours.** Choose Golden, the original Green, or Black using circular colour controls in Settings. Your device remembers the choice across Gullak, including its logo and browser icon. Combine it with light, dark, or system appearance; voice input and read-aloud controls when your browser supports them.

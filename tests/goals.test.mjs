@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import ts from 'typescript';
 import {initialState,applyAction,balance,reserved,available,classifyGoal,categoryForGoal,symbolForGoal,validateBackup,goalTotals,earnedIncome,losses,spent,received,assertAccounting} from '../app/domain.ts';
-const moduleFrom=async name=>{const code=ts.transpileModule(readFileSync(new URL('../app/'+name+'.ts',import.meta.url),'utf8').replace('"./domain"',JSON.stringify(new URL('../app/domain.ts',import.meta.url).href)),{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText;return import('data:text/javascript,'+encodeURIComponent(code));};
+const moduleFrom=async name=>{const code=ts.transpileModule(readFileSync(new URL('../app/'+name+'.ts',import.meta.url),'utf8').replace('"./domain"',JSON.stringify(new URL('../app/domain.ts',import.meta.url).href)).replace('"./money.mjs"',JSON.stringify(new URL('../app/money.mjs',import.meta.url).href)),{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText;return import('data:text/javascript,'+encodeURIComponent(code));};
 const {goalEta}=await moduleFrom('eta');const {convertInput,formatCurrency,detectCurrency}=await moduleFrom('currency');
 let seq=0;const apply=(s,a,p)=>applyAction(s,a,p,'new-request-'+(++seq),'2026-10-05T00:00:00Z');
 const create=(s,name='Car',targetCents=10000)=>apply(s,'createGoal',{name,targetCents,category:'auto',startedOn:'2026-10-01',date:'',note:''});
@@ -16,10 +16,10 @@ test('automatic categories and specific icons correct old cars and append new go
  let s=create(initialState());const car=s.goals.at(-1);s=create(s,'Honda Civic');assert.equal(s.goals.at(-2).id,car.id);assert.equal(s.goals.at(-1).category,'Getting around');
  s=apply(s,'editGoal',{goalId:car.id,name:'Car',category:'Lifestyle',targetCents:10000,date:'',note:''});assert.equal(categoryForGoal(s.goals.find(g=>g.id===car.id)),'Lifestyle');
 });
-test('currency conversion is exact to USD cents and preserves original amounts in backups',()=>{
+test('currency conversion preserves entered minor units and original amounts in backups',()=>{
  assert.equal(detectCurrency('₹9,000'),'INR');assert.equal(detectCurrency('$100','INR'),'USD');assert.equal(detectCurrency('CAD 100','INR'),'CAD');assert.equal(detectCurrency('1000INR'),'INR');assert.equal(detectCurrency('EUR 90'),'EUR');
  const c=convertInput('₹9,000','INR',fx);assert.equal(c.cents,10000);assert.equal(convertInput('90 EUR','EUR',fx).cents,10000);assert.equal(formatCurrency(10000,'INR',fx),'₹9,000');
- assert.throws(()=>convertInput('1000','INR',null),/exchange rate/);assert.throws(()=>convertInput('0.01','INR',fx),/Converted amount/);assert.throws(()=>convertInput('-100','USD',fx));
+ assert.throws(()=>convertInput('1000','INR',null),/exchange rate/);assert.equal(formatCurrency(convertInput('0.01','INR',fx).cents,'INR',fx),'₹0.01');assert.throws(()=>convertInput('-100','USD',fx));
  let s=create(initialState());const id=s.goals.at(-1).id;s=apply(s,'contribute',{goalId:id,source:'external',amountCents:c.cents,conversion:c.conversion,date:'2026-10-05'});assert.equal(reserved(s),10000);
  const restored=validateBackup(JSON.parse(JSON.stringify(s)));assert.equal(restored.entries[0].conversion.originalAmount,9000);assert.equal(restored.goals.at(-1).startedOn,'2026-10-01');
  assert.throws(()=>apply(s,'income',{amountCents:1,conversion:c.conversion}),/converted amount/);

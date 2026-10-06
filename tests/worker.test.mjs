@@ -1,3 +1,4 @@
+import {convertInput,convertBoundedInput,formatCurrency} from "../app/currency.ts";
 import assert from 'node:assert/strict';
 import {createRequire} from 'node:module';
 import {readFileSync,readdirSync} from 'node:fs';
@@ -132,5 +133,17 @@ try{
  const privateHome=await mf.dispatchFetch(base+'/',{headers});assert.equal(privateHome.headers.get('x-robots-tag'),'noindex, nofollow');
  const robots=await(await mf.dispatchFetch(base+'/robots.txt')).text();assert.match(robots,/Sitemap: https:\/\/gullak-aditya\.thegameraadi3\.chatgpt\.site\/sitemap.xml/);
  const sitemap=await(await mf.dispatchFetch(base+'/sitemap.xml')).text();assert.match(sitemap,/<loc>https:\/\/gullak-aditya\.thegameraadi3\.chatgpt\.site\/<\/loc>/);assert.doesNotMatch(sitemap,/\/manage|\/api\//);
+ // Persist precise FX entries through the built Worker and D1, then restore the JSON backup.
+ const preciseFx={base:'USD',rates:{INR:{rate:96.2,date:'2026-10-05'}},fetchedAt:'2026-10-05T12:00:00Z',source:'Regression fixture'};
+ const payload=value=>({amountCents:value.cents,conversion:value.conversion});
+ s=await(await get()).json();
+ r=await post(s.version,'createGoal',{name:'Past date rejected',targetCents:10000,category:'auto',date:'2020-01-01',note:''});assert.equal(r.status,400);assert.match(await r.text(),/today or a future/);
+ r=await post(s.version,'createGoal',{name:'Precise FX goal',targetCents:100000,category:'auto',date:'',note:''});assert.equal(r.status,200);s=await r.json();const fxId=s.state.goals.at(-1).id;
+ r=await post(s.version,'contribute',{goalId:fxId,source:'external',...payload(convertInput('100','INR',preciseFx))});assert.equal(r.status,200);s=await r.json();
+ r=await post(s.version,'release',{goalId:fxId,...payload(convertInput('40','INR',preciseFx))});assert.equal(r.status,200);s=await r.json();
+ let funded=s.state.entries.filter(e=>e.goalId===fxId).reduce((total,e)=>total+e.goalDeltaCents,0);assert.equal(formatCurrency(funded,'INR',preciseFx),'₹60');assert.equal(formatCurrency(s.state.entries.at(-1).amountCents,'INR',preciseFx),'₹40');
+ const backup=JSON.parse(JSON.stringify(s.state));r=await post(s.version,'restore',{state:backup});assert.equal(r.status,200);s=await r.json();assert.deepEqual(s.state.entries,backup.entries);
+ r=await post(s.version,'release',{goalId:fxId,...payload(convertBoundedInput('60','INR',preciseFx,funded))});assert.equal(r.status,200);s=await r.json();assert.equal(s.state.entries.filter(e=>e.goalId===fxId).reduce((total,e)=>total+e.goalDeltaCents,0),0);
+ assert.deepEqual((await(await get()).json()).state.entries,s.state.entries);
  console.log('Passed built Worker: ledger/account invariants; owner-only access; privacy-safe analytics and opt-outs; legacy unknown activity; server visits without JavaScript; browser interaction upgrades; sticky bot signals; excluded management/API/prefetch traffic; exact visit/activity split and automation subtotals; public SEO and private account indexing protection.');
 }finally{await mf.dispose();}
