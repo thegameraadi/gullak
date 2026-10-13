@@ -7,7 +7,7 @@ export type Colour = typeof colourOptions[number]["value"];
 export type Appearance = "system"|"light"|"dark";
 export const isColour = (value:unknown):value is Colour => colourOptions.some(c=>c.value===value);
 export const isAppearance = (value:unknown):value is Appearance => ["system","light","dark"].includes(value as string);
-export const brandAsset = (colour:Colour,dark:boolean,file:"favicon"|"apple-touch-icon"|"manifest") => `/brand/${colour}/${file}${dark?"-dark":""}.${file==="favicon"?"svg":file==="manifest"?"webmanifest":"png"}?v=colours-1`;
+export const brandAsset = (colour:Colour,dark:boolean,file:"logo"|"favicon"|"apple-touch-icon"|"manifest") => `/brand/${colour}/${file}${dark?"-dark":""}.${file==="favicon"||file==="logo"?"svg":file==="manifest"?"webmanifest":"png"}?v=goal-coin-1`;
 
 // Apply saved device preferences before the page paints, including server-rendered routes.
 export const appearanceBootstrap=`try{var c=localStorage.getItem("gullak-colour"),t=localStorage.getItem("gullak-theme");if(["golden","green","black"].includes(c))document.documentElement.dataset.colour=c;if(["light","dark"].includes(t))document.documentElement.dataset.theme=t;}catch{}`;

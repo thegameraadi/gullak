@@ -17,13 +17,13 @@ export const metadata: Metadata = {
   openGraph:{type:"website",siteName:"Gullak",url:siteOrigin+"/",title:"Gullak — Savings Goals & Money Tracker",description:siteDescription},
   twitter:{card:"summary",title:"Gullak — Savings Goals & Money Tracker",description:siteDescription},
   verification:{google:"-Q4tiO103O9tPd4vYl1RW7h_xTtzrwOhNUxsMRxrOw8"},
-  manifest: "/manifest.webmanifest?v=piggy-gold-1",
+  manifest: "/manifest.webmanifest?v=goal-coin-1",
   appleWebApp: { capable: true, title: "Gullak", statusBarStyle: "default" },
   robots: { index: false, follow: false },
   icons: {
-    icon: "/favicon.svg?v=piggy-gold-1",
-    shortcut: "/favicon.svg?v=piggy-gold-1",
-    apple: "/apple-touch-icon.png?v=piggy-gold-1",
+    icon: "/favicon.svg?v=goal-coin-1",
+    shortcut: "/favicon.svg?v=goal-coin-1",
+    apple: [{url:"/apple-touch-icon.png?v=goal-coin-1",sizes:"180x180",type:"image/png"}],
   },
 };
 export const viewport:Viewport={width:"device-width",initialScale:1,viewportFit:"cover",themeColor:[{media:"(prefers-color-scheme: light)",color:"#f7f2e7"},{media:"(prefers-color-scheme: dark)",color:"#191815"}]};

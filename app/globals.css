@@ -79,3 +79,6 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
 .colour-swatch [data-slot=radio-group-indicator]{display:none}
 .colour-option[data-selected=true]{font-weight:600;color:var(--foreground)}
 .colour-check{position:absolute;top:13px;left:13px;color:#fff;pointer-events:none}
+
+/* Clip only the website badge; app-icon files remain full bleed for OS masks. */
+.brand-symbol{display:inline-flex;flex-shrink:0;border-radius:24%;overflow:hidden;vertical-align:middle}.brand-symbol img{display:block}

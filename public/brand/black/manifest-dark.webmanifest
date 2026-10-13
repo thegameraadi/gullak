@@ -5,21 +5,27 @@
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
+  "description": "Your savings, your goals.",
   "background_color": "#161616",
   "theme_color": "#161616",
-  "description": "Your savings, your goals.",
   "icons": [
     {
-      "src": "/brand/black/icon-192-dark.png?v=colours-1",
+      "src": "/brand/black/icon-192-dark.png?v=goal-coin-1",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any"
+      "purpose": "any maskable"
     },
     {
-      "src": "/brand/black/icon-512-dark.png?v=colours-1",
+      "src": "/brand/black/icon-512-dark.png?v=goal-coin-1",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any"
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/brand/black/icon-1024-dark.png?v=goal-coin-1",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }

@@ -1,4 +1,4 @@
-<img src="public/favicon-light.svg" width="56" height="56" alt="Gullak monogram">
+<img src="public/brand/golden/logo.svg" width="72" height="72" alt="Gullak Goal Coin logo">
 
 # Gullak
 
@@ -36,7 +36,7 @@ In Safari, open the live app, tap **Share → Add to Home Screen**, and keep tha
 
 Gullak fetches a fresh page when opened. While running, it checks the deployed release when you return to the app, reconnect, and every minute while visible. A changed release loads automatically after a quiet moment. Open dialogs, focused input fields, menus, and saves defer the reload so it does not discard a form or interrupt a change.
 
-You do **not** need to delete the Home Screen icon, reinstall the app, or clear browser data. An already suspended session from before this update feature was released needs one normal close and reopen to load the new updater. Thereafter it checks future releases automatically while online. iOS controls when suspended apps run; updates cannot run while the app is closed or offline. Saved account data and guest storage are preserved by a normal reload. iOS may keep the installed icon artwork even when app content changes.
+You do **not** need to delete the Home Screen icon, reinstall the app, or clear browser data. An already suspended session from before this update feature was released needs one normal close and reopen to load the new updater. Thereafter it checks future releases automatically while online. iOS controls when suspended apps run; updates cannot run while the app is closed or offline. Saved account data and guest storage are preserved by a normal reload. iOS may keep the installed icon artwork even when app content changes. If the old icon remains after reopening online, download a backup first if using Guest, remove the Home Screen icon, then add Gullak again from Safari. Do not clear website data.
 
 **Guest data stays in this browser.** Clearing website data can remove it; download a backup if you need another copy. Fresh launches require connectivity because Gullak does not cache an offline app shell.
 
@@ -101,3 +101,7 @@ The bundled Inter font and third-party components retain their respective licens
 Choose your colour in Settings:
 
 <img src="docs/screenshots/phone-colour-settings.png" alt="Golden, Green, and Black circular colour choices in Gullak Settings" width="280"/>
+
+## Official identity
+
+The original **Goal Coin** mark combines a coin-fed piggy bank and a dollar counter. Golden, Green and Black finishes each have light and dark artwork. The production master is vector SVG; app icons are exported directly at up to 3840 × 3840 pixels. [Design brief and concept](docs/brand/design-brief.md) · [Scalable logo](public/brand/golden/logo.svg) · [4K app icon](public/brand/golden/icon-3840.png).
