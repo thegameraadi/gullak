@@ -2,8 +2,9 @@ import type {AnalyticsReport} from "../analytics-report";
 import {chatGPTSignOutPath} from "../chatgpt-auth";
 import {siteOrigin} from "../seo";
 import TrafficSplit from "./traffic";
+import BrandIcon from "../brand-icon";
 const number=(n:number)=>n.toLocaleString("en-US");
-const percent=(a:number,b:number)=>b?`${Math.round(a/b*100)}%`:"—";
+const percent=(a:number,b:number)=>b?`${Math.round(a/b*100)}%`:"n/a";
 const labels:Record<string,string>={page_view:"Page views",visitor_engaged:"Browser interaction detected",guest_started:"Guest sessions started",sign_in_started:"Sign-in started",dashboard_opened:"Dashboard opened",goal_created:"Goals created",income_recorded:"Income recorded",contribution_saved:"Goal funding saved",purchase_recorded:"Purchases recorded",history_edited:"History corrected",backup_restored:"Backups restored",import_completed:"Income imports",currency_changed:"Currency changed",gullie_opened:"Goalie opened",gullie_message_sent:"Messages sent to Goalie",gullie_reply_received:"Goalie replies",app_error:"Reported app errors",direct:"Direct / unknown",google:"Google",bing:"Bing",github:"GitHub",social:"Social referral",friends:"Friends campaign","bay-area-builders":"Bay Area Builders campaign",other:"Other referral","built-in":"Built-in replies",ai:"Connected AI replies"};
 const label=(value:string|number)=>labels[String(value)]??String(value);
 export default function ManageDashboard({report:r}:{report:AnalyticsReport}) {
@@ -11,7 +12,7 @@ export default function ManageDashboard({report:r}:{report:AnalyticsReport}) {
   const max=Math.max(1,...r.daily.map(d=>Math.max(d.visitors,d.sessions)));
   const current=[{name:"Visitors",value:r.summary.visitors,previous:r.previous.visitors,note:"Distinct browsers"},{name:"Sessions",value:r.summary.sessions,previous:r.previous.sessions,note:"New after 30 minutes idle"},{name:"Page views",value:r.summary.pageViews,previous:r.previous.pageViews,note:"Includes return page loads"},{name:"Returning visitors",value:r.returning,note:"Seen on an earlier UTC day"},{name:"Seen in last 30 min",value:r.recent,note:"Latest recorded activity"},{name:"Synced accounts",value:r.accounts,note:"All registered accounts"}];
   return <main className="manage-shell">
-    <header className="manage-top"><span className="manage-wordmark">gullak <small>manage</small></span><div><span className="manage-private">Owner only</span><a href={chatGPTSignOutPath("/manage")} target="_top">Sign out</a></div></header>
+    <header className="manage-top"><a className="manage-wordmark" href="/" aria-label="Gullak home"><BrandIcon size={44}/><span>gullak <small>manage</small></span></a><div><span className="manage-private">Owner only</span><a href={chatGPTSignOutPath("/manage")} target="_top">Sign out</a></div></header>
     <div className="manage-heading"><div><p className="manage-eyebrow">PRODUCT ANALYTICS</p><h1>How Gullak is being used</h1><p>Activity, adoption, and the people coming back.</p></div><form action="/manage" method="get"><label htmlFor="manage-days">Time range</label><select id="manage-days" name="days" defaultValue={String(r.days)}><option value="7">Last 7 days</option><option value="30">Last 30 days</option><option value="90">Last 90 days</option></select><button className="button primary" type="submit">Apply</button><a className="button secondary" href={`/manage?days=${r.days}`}>Refresh</a></form></div>
     <p className="manage-updated">Updated {new Date(r.until).toLocaleString("en-US",{timeZone:"UTC",dateStyle:"medium",timeStyle:"short"})} UTC · Current day is partial</p>
     {!r.summary.visitors&&<aside className="manage-empty"><strong>Ready for your first visitors.</strong><p>New usage will appear here as people open Gullak. Earlier traffic cannot be reconstructed. Your own visits to this management page are excluded.</p></aside>}

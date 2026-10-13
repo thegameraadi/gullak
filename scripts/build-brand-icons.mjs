@@ -31,4 +31,4 @@ for(const colour of colourOptions)for(const dark of [false,true]){
     await writeFile(`public/manifest${suffix}.webmanifest`,JSON.stringify({...identity,background_color:background,theme_color:background,icons:icons.map(i=>({...i,src:i.src.replace('/brand/golden','')}))},null,2)+"\n");
   }
 }
-console.log("Generated original Goal Coin logos, favicons, 180–3840px opaque app icons and stable-identity manifests in all three colours and both appearances.");
+console.log("Generated original Goal Coin logos, favicons, 180–3840px opaque app icons and stable-identity manifests in all four colours and both appearances.");

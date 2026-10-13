@@ -1,0 +1,31 @@
+{
+  "id": "/",
+  "name": "Gullak",
+  "short_name": "Gullak",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "description": "Your savings, your goals.",
+  "background_color": "#111e17",
+  "theme_color": "#111e17",
+  "icons": [
+    {
+      "src": "/brand/white/icon-192-dark.png?v=goal-coin-1",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/brand/white/icon-512-dark.png?v=goal-coin-1",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/brand/white/icon-1024-dark.png?v=goal-coin-1",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

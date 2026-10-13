@@ -4,6 +4,7 @@ export const brandVersion = "goal-coin-1";
 const finishes = {
   golden: {background:["#214e3a","#092d22"],metal:["#fae9bd","#d9b36c","#a77a37"],edge:"#fff4d6"},
   green: {background:["#215940","#073626"],metal:["#e5f5e9","#a3d5b2","#68a883"],edge:"#f4fff7"},
+  white: {background:["#28513b","#0f3121"],metal:["#ffffff","#eef5e9","#bdd2ba"],edge:"#ffffff"},
   black: {background:["#353c38","#101614"],metal:["#f6f8f3","#c4cdc5","#818e83"],edge:"#ffffff"},
 };
 // The full silhouette fits the central 80%-diameter circle used by maskable icons.

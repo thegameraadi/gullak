@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import "./gullie-mobile.css";
+import "./design-system.css";
 import AppIcon from "./app-icon";
 import AppearanceProvider from "./appearance-provider";
 import {appearanceBootstrap} from "./appearance";
@@ -11,11 +12,11 @@ import {headers} from "next/headers";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteOrigin),
-  title: {default:"Gullak — Savings Goals & Money Tracker",template:"%s · Gullak"},
+  title: {default:"Gullak | Savings Goals & Money Tracker",template:"%s · Gullak"},
   description: siteDescription,
   alternates: {canonical:"/"},
-  openGraph:{type:"website",siteName:"Gullak",url:siteOrigin+"/",title:"Gullak — Savings Goals & Money Tracker",description:siteDescription},
-  twitter:{card:"summary",title:"Gullak — Savings Goals & Money Tracker",description:siteDescription},
+  openGraph:{type:"website",siteName:"Gullak",url:siteOrigin+"/",title:"Gullak | Savings Goals & Money Tracker",description:siteDescription},
+  twitter:{card:"summary",title:"Gullak | Savings Goals & Money Tracker",description:siteDescription},
   verification:{google:"-Q4tiO103O9tPd4vYl1RW7h_xTtzrwOhNUxsMRxrOw8"},
   manifest: "/manifest.webmanifest?v=goal-coin-1",
   appleWebApp: { capable: true, title: "Gullak", statusBarStyle: "default" },

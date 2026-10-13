@@ -1,7 +1,7 @@
 import type {AnalyticsReport} from "../analytics-report";
 
 const format=(n:number)=>n.toLocaleString("en-US");
-const percent=(n:number,total:number)=>total?`${Math.round(n/total*100)}%`:"—";
+const percent=(n:number,total:number)=>total?`${Math.round(n/total*100)}%`:"n/a";
 const labels={human:"Likely humans",bot:"AI / bots",unknown:"Unknown"};
 const descriptions={human:"Browser interaction with no detected automation.",bot:"Crawler identity or automation signal detected.",unknown:"Not enough evidence, including earlier activity."};
 const agents:Record<string,string>={"openai-training":"OpenAI · GPTBot","openai-search":"OpenAI · OAI-SearchBot","openai-assistant":"OpenAI · ChatGPT-User","claude-training":"Anthropic · ClaudeBot","claude-search":"Anthropic · Claude-SearchBot","claude-assistant":"Anthropic · Claude-User","perplexity-search":"Perplexity · PerplexityBot","perplexity-assistant":"Perplexity · Perplexity-User","meta-ai":"Meta AI crawler","common-crawl":"Common Crawl","search-crawler":"Search crawler","other-bot":"Other bot","other-automation":"Other crawler / HTTP tool"};

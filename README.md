@@ -8,7 +8,7 @@ Gullak turns things you want to save for into clear goals, balances, and progres
 
 ### [Open the live app →](https://gullak-aditya.thegameraadi3.chatgpt.site/)
 
-**Built by [Aditya](https://github.com/thegameraadi).** Works in a desktop browser, on your phone, and from a Safari Home Screen icon.
+**Built by [Aditya](https://github.com/thegameraadi).** Works in a desktop browser, on iPad, on your phone, and from a Safari Home Screen icon.
 
 ![Gullak desktop dashboard](docs/screenshots/desktop-dashboard.png)
 
@@ -19,7 +19,7 @@ Gullak turns things you want to save for into clear goals, balances, and progres
 - **Use USD or INR.** View converted amounts with the reference rate and date; original entry amounts remain in the ledger. Currency changes in goal forms convert the budget, and new FX entries preserve paise without rounding to whole USD cents.
 - **Ask Goalie.** Get goal summaries and balance explanations, or describe a change. Review its effect before saving. Built-in commands work without an AI service; the optional AI adapter requires server configuration.
 - **Choose how to save.** Sign in with ChatGPT for an account saved on the server, or try a device-local guest dashboard. Download and restore backups from Settings.
-- **Make it yours.** Choose Golden, the original Green, or Black using circular colour controls in Settings. Your device remembers the choice across Gullak, including its logo and browser icon. Combine it with light, dark, or system appearance; voice input and read-aloud controls when your browser supports them.
+- **Make it yours.** Choose Golden, Green, Black, or White using circular colour controls in Settings. Your device remembers the choice across Gullak, including its logo and browser icon. Combine it with light, dark, or system appearance; voice input and read-aloud controls when your browser supports them.
 
 Gullak records your savings decisions. It does not connect to a bank or move money.
 
@@ -92,7 +92,7 @@ GitHub Pages is not the deployment target: Gullak includes authenticated server 
 
 ## Quality and contributions
 
-The responsive layout was checked from 320-pixel phone widths through 1440-pixel laptop widths, including short keyboard-height simulations. See [QA.md](QA.md) for tested behaviors and the limits of desktop browser testing. Screenshots use fictional guest demo data.
+The responsive layout was checked from 320-pixel phone widths through 1440-pixel laptop widths, including iPad 9th-generation portrait (810 × 1080), landscape (1080 × 810), and short keyboard-height simulations. See [QA.md](QA.md) for tested behaviors and the limits of desktop browser testing. Screenshots use fictional local demo data.
 
 Found a problem? [Open an issue](https://github.com/thegameraadi/gullak/issues) with the screen size, browser, and steps to reproduce. Please keep personal financial records and credentials out of screenshots and reports.
 
@@ -100,8 +100,12 @@ The bundled Inter font and third-party components retain their respective licens
 
 Choose your colour in Settings:
 
-<img src="docs/screenshots/phone-colour-settings.png" alt="Golden, Green, and Black circular colour choices in Gullak Settings" width="280"/>
+<img src="docs/screenshots/phone-colour-settings.png" alt="Golden, Green, Black, and White circular colour choices in Gullak Settings" width="280"/>
 
 ## Official identity
 
-The original **Goal Coin** mark combines a coin-fed piggy bank and a dollar counter. Golden, Green and Black finishes each have light and dark artwork. The production master is vector SVG; app icons are exported directly at up to 3840 × 3840 pixels. [Design brief and concept](docs/brand/design-brief.md) · [Scalable logo](public/brand/golden/logo.svg) · [4K app icon](public/brand/golden/icon-3840.png).
+The original **Goal Coin** mark combines a coin-fed piggy bank and a dollar counter. Golden, Green, Black and White finishes each have light and dark artwork. The production master is vector SVG; app icons are exported directly at up to 3840 × 3840 pixels. [Design brief and concept](docs/brand/design-brief.md) · [Scalable logo](public/brand/golden/logo.svg) · [4K app icon](public/brand/golden/icon-3840.png).
+
+The interface carries that identity through forest mastheads, paper surfaces, rounded goal cards, restrained accents, clear financial typography, Goalie, dialogs, and private analytics. White uses white surfaces and dark forest text in light appearance, with white accents in dark appearance.
+
+<img src="docs/screenshots/ipad-dashboard.png" width="540" alt="Gullak goal cards in iPad landscape">

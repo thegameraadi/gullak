@@ -3,6 +3,7 @@ import {manageAccess} from "../manage-access";
 import {analyticsDays,analyticsReport} from "../analytics-report";
 import {chatGPTSignInPath,chatGPTSignOutPath} from "../chatgpt-auth";
 import ManageDashboard from "./report";
+import BrandIcon from "../brand-icon";
 import "./manage.css";
 export const dynamic="force-dynamic";
 export const metadata:Metadata={title:"Private analytics",robots:{index:false,follow:false},alternates:{canonical:"/manage"}};
@@ -21,5 +22,5 @@ async function ProtectedManage({days}:{days:number}) {
   } catch {return <Gate title="Analytics unavailable" message="Your app is still available. Refresh this page to try loading analytics again."/>;}
 }
 function Gate({title,message,children}:{title:string;message:string;children?:React.ReactNode}) {
-  return <main className="manage-gate"><span className="manage-wordmark">gullak <small>manage</small></span><h1>{title}</h1><p>{message}</p>{children}<a href="/" className="manage-back">Back to Gullak</a></main>;
+  return <main className="manage-gate"><span className="manage-wordmark"><BrandIcon size={50}/><span>gullak <small>manage</small></span></span><h1>{title}</h1><p>{message}</p>{children}<a href="/" className="manage-back">Back to Gullak</a></main>;
 }

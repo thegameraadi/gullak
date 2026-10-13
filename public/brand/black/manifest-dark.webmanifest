@@ -6,8 +6,8 @@
   "scope": "/",
   "display": "standalone",
   "description": "Your savings, your goals.",
-  "background_color": "#161616",
-  "theme_color": "#161616",
+  "background_color": "#141916",
+  "theme_color": "#141916",
   "icons": [
     {
       "src": "/brand/black/icon-192-dark.png?v=goal-coin-1",
